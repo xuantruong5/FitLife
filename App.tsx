@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import HomePage from "./src/pages/HomePage";
 import { notificationEmitter } from "./src/general/notification";
+import Login from "./src/pages/login";
 
 
 
@@ -37,7 +38,7 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let name_icon = "";
           if (route.name === "Home") name_icon = focused ? "home" : "home-outline";
-          else if (route.name === "Wishlist") name_icon = focused ? "heart-sharp" : "heart-outline";
+          else if (route.name === "Login") name_icon = focused ? "heart-sharp" : "heart-outline";
           else if (route.name === "ScanQR") name_icon = focused ? "scan-circle" : "scan";
           else if (route.name === "ChatBot") name_icon = focused ? "chatbubbles" : "chatbubbles-outline";
           else if (route.name === "Profile") name_icon = focused ? "person-circle-sharp" : "people-outline";
@@ -59,8 +60,8 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
-      {/* <Tab.Screen name="Wishlist" component={Wishlist} />
-            <Tab.Screen name="ScanQR" component={ScanQR} />
+      <Tab.Screen name="login" component={Login} />
+            {/* <Tab.Screen name="ScanQR" component={ScanQR} />
             <Tab.Screen name="ChatBot" component={ChatBot} />
             <Tab.Screen name="Profile" component={Profile} /> */}
 
