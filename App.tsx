@@ -7,6 +7,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import HomePage from "./src/pages/HomePage";
 import { notificationEmitter } from "./src/general/notification";
 import Login from "./src/pages/login";
+import Onloading from "./src/pages/on_loading";
+import Attendance from "./src/pages/AttendancePage";
 
 
 
@@ -100,6 +102,8 @@ const App = () => {
                   screenOptions={{headerShown:false}}
                   >
                     <Stack.Screen name="MainTabs" component={MainTabs} />
+                    <Stack.Screen name="OnLoading" component={Onloading}/>
+                    <Stack.Screen name="Attendance" component={Attendance}/>
                     
 
 
