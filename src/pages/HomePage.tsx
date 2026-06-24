@@ -30,7 +30,7 @@ const HomePage = ({ navigation }: any) => {
                         <Text style={styles.bannerText1}>Hôm nay</Text>
                         <Text style={styles.bannerText2}>3 buổi dạy sắp tới</Text>
                     </View>
-                    <TouchableOpacity style={styles.btnView}>
+                    <TouchableOpacity style={styles.btnView} onPress={() => navigation.navigate('Attendance')} >
                         <Text style={styles.btnViewText}>Xem </Text>
                         <Ionicons name="chevron-forward" size={16} color="#fff" />
                     </TouchableOpacity>
@@ -70,7 +70,7 @@ const HomePage = ({ navigation }: any) => {
 
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Attendance')} style={[
+                    <TouchableOpacity onPress={() => navigation.navigate('MembersPage')} style={[
                         styles.card,
                         {
                             shadowColor: '#42D66D',

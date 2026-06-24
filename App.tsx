@@ -10,6 +10,8 @@ import Login from "./src/pages/login";
 import Onloading from "./src/pages/on_loading";
 import Attendance from "./src/pages/AttendancePage";
 import Calendar from "./src/pages/CalendarPage";
+import MembersPage from "./src/pages/MembersPage";
+import Progress from "./src/pages/ProgressPage";
 
 
 
@@ -106,6 +108,8 @@ const App = () => {
                     <Stack.Screen name="OnLoading" component={Onloading}/>
                     <Stack.Screen name="Attendance" component={Attendance}/>
                     <Stack.Screen name = "Calendar" component={Calendar}/>
+                    <Stack.Screen name = "MembersPage" component={MembersPage}/>
+                    <Stack.Screen name="Progress" component={Progress}/>
                     
 
 
