@@ -39,7 +39,7 @@ const HomePage = ({ navigation }: any) => {
                 <Text style={styles.title}>QUẢN LÝ</Text>
 
                 <View style={styles.row}>
-                    <TouchableOpacity style={[
+                    <TouchableOpacity onPress={() => navigation.navigate('Calendar')}  style={[
                         styles.card,
                         {
                             shadowColor: '#5B9DFF',

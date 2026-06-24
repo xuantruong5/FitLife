@@ -9,6 +9,7 @@ import { notificationEmitter } from "./src/general/notification";
 import Login from "./src/pages/login";
 import Onloading from "./src/pages/on_loading";
 import Attendance from "./src/pages/AttendancePage";
+import Calendar from "./src/pages/CalendarPage";
 
 
 
@@ -104,6 +105,7 @@ const App = () => {
                     <Stack.Screen name="MainTabs" component={MainTabs} />
                     <Stack.Screen name="OnLoading" component={Onloading}/>
                     <Stack.Screen name="Attendance" component={Attendance}/>
+                    <Stack.Screen name = "Calendar" component={Calendar}/>
                     
 
 
