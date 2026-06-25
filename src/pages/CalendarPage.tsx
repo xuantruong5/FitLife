@@ -236,27 +236,41 @@ const Calendar = ({ navigation }: any) => {
                         </View>
                     ))}
                     <View style={[styles.eventCard, { top: 95, backgroundColor: "#2CCB8F" }]}>
-                        <Text style={styles.eventTitle}>
-                            Dạy Private - Nguyễn Văn A
-                        </Text>
-                        <Text
-                            style={styles.eventTime}
-                        >
-                            08:00 - 09:00
-                        </Text>
+                        <View>
+                            <Text style={styles.eventTitle}>
+                                Dạy Private - Nguyễn Văn A
+                            </Text>
+                            <Text style={styles.eventTime}>
+                                08:00 - 09:00
+                            </Text>
+                        </View>
+
+                        <TouchableOpacity onPress={() => navigation.navigate("ChangeSchedule")} style={styles.changeButton}>
+                            <Ionicons
+                                name="swap-horizontal-outline"
+                                size={20}
+                                color="#2CCB8F"
+                            />
+                        </TouchableOpacity>
                     </View>
-                    <View
-                        style={[
-                            styles.eventCard,
-                            { top: 575, backgroundColor: "#FF9448", },]}>
-                        <Text
-                            style={styles.eventTitle}
-                        >
-                            Lớp Yoga Cơ bản
-                        </Text>
-                        <Text
-                            style={styles.eventTime}>14:00 - 15:00
-                        </Text>
+
+                    <View style={[styles.eventCard, { top: 575, backgroundColor: "#FF9448", },]}>
+                        <View>
+                            <Text style={styles.eventTitle}>
+                                Lớp Yoga Cơ bản
+                            </Text>
+                            <Text style={styles.eventTime}>
+                                14:00 - 15:00
+                            </Text>
+                        </View>
+
+                        <TouchableOpacity onPress={() => navigation.navigate("ChangeSchedule")}  style={styles.changeButton}>
+                            <Ionicons
+                                name="swap-horizontal-outline"
+                                size={20}
+                                color="#FF9448"
+                            />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>
@@ -385,14 +399,19 @@ const styles = StyleSheet.create({
         right: 20,
         height: 60,
         borderRadius: 16,
-        justifyContent: "center",
+        justifyContent: "space-between",
         paddingHorizontal: 15,
+        flexDirection: "row",
+        alignItems: "center",
+
     },
 
     eventTitle: {
         color: "#fff",
         fontWeight: "700",
         fontSize: 14,
+        justifyContent: "flex-start"
+
     },
 
     eventTime: {
@@ -432,6 +451,14 @@ const styles = StyleSheet.create({
     monthDayText: {
         fontSize: 16,
         fontWeight: "600",
+    },
+    changeButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: "#fff",
+        justifyContent: "center",
+        alignItems: "center",
     },
 })
 export default Calendar;

@@ -10,6 +10,11 @@ import Login from "./src/pages/login";
 import Onloading from "./src/pages/on_loading";
 import Attendance from "./src/pages/AttendancePage";
 import Calendar from "./src/pages/CalendarPage";
+import MembersPage from "./src/pages/MembersPage";
+import Progress from "./src/pages/ProgressPage";
+import MemberDetails from "./src/pages/MemberDetails";
+import TrainerIncome from "./src/pages/TrainerIncome";
+import ChangeSchedule from "./src/pages/ChangeSchedule";
 
 
 
@@ -64,7 +69,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="login" component={Login} />
-            {/* <Tab.Screen name="ScanQR" component={ScanQR} />
+      {/* <Tab.Screen name="ScanQR" component={ScanQR} />
             <Tab.Screen name="ChatBot" component={ChatBot} />
             <Tab.Screen name="Profile" component={Profile} /> */}
 
@@ -73,47 +78,52 @@ function MainTabs() {
   );
 }
 const App = () => {
-      const [pendingRoute, setPendingRoute] = useState<string | null>(null);
-      useEffect(() => {
-        const sub = (payload: any) => {
-          const { type, message } = payload;
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
+  useEffect(() => {
+    const sub = (payload: any) => {
+      const { type, message } = payload;
 
-          // Tạm thời chỉ hiện thông báo
-          Alert.alert("Thông báo", message);
-        };
+      // Tạm thời chỉ hiện thông báo
+      Alert.alert("Thông báo", message);
+    };
 
-        notificationEmitter.on("thong_bao", sub);
+    notificationEmitter.on("thong_bao", sub);
 
-        return () => {
-          notificationEmitter.off("thong_bao", sub);
-        };
-      }, []);
-      return (
-        <NavigationContainer
-              ref={navigationRef}
-              onReady={()=>{
-                if(pendingRoute){
-                  navigationRef.navigate(pendingRoute as never);
-                  setPendingRoute(null);
-                }
-              }}
-          >
-            <Stack.Navigator
-                  initialRouteName="MainTabs"
-                  screenOptions={{headerShown:false}}
-                  >
-                    <Stack.Screen name="MainTabs" component={MainTabs} />
-                    <Stack.Screen name="OnLoading" component={Onloading}/>
-                    <Stack.Screen name="Attendance" component={Attendance}/>
-                    <Stack.Screen name = "Calendar" component={Calendar}/>
-                    
+    return () => {
+      notificationEmitter.off("thong_bao", sub);
+    };
+  }, []);
+  return (
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        if (pendingRoute) {
+          navigationRef.navigate(pendingRoute as never);
+          setPendingRoute(null);
+        }
+      }}
+    >
+      <Stack.Navigator
+        initialRouteName="MainTabs"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="OnLoading" component={Onloading} />
+        <Stack.Screen name="Attendance" component={Attendance} />
+        <Stack.Screen name="Calendar" component={Calendar} />
+        <Stack.Screen name="MembersPage" component={MembersPage} />
+        <Stack.Screen name="Progress" component={Progress} />
+        <Stack.Screen name="MemberDetails" component={MemberDetails} />
+        <Stack.Screen name="TrainerIncome" component={TrainerIncome}/>
+        <Stack.Screen name="ChangeSchedule" component={ChangeSchedule}/>
 
 
 
-            </Stack.Navigator>
 
-        </NavigationContainer>
-      )
+      </Stack.Navigator>
+
+    </NavigationContainer>
+  )
 }
 
 
