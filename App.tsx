@@ -15,6 +15,7 @@ import Progress from "./src/pages/ProgressPage";
 import MemberDetails from "./src/pages/MemberDetails";
 import TrainerIncome from "./src/pages/TrainerIncome";
 import ChangeSchedule from "./src/pages/ChangeSchedule";
+import MemberHome from "./src/pages/Member/MemberHome";
 
 
 
@@ -77,6 +78,43 @@ function MainTabs() {
 
   );
 }
+
+function MemberTabs() {
+  return (
+    <Tab.Navigator screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ focused, color, size }) => {
+        let name_icon = "";
+        if (route.name === "Home") name_icon = focused ? "home" : "home-outline";
+        else if (route.name === "Login") name_icon = focused ? "heart-sharp" : "heart-outline";
+        else if (route.name === "ScanQR") name_icon = focused ? "scan-circle" : "scan";
+        else if (route.name === "ChatBot") name_icon = focused ? "chatbubbles" : "chatbubbles-outline";
+        else if (route.name === "Profile") name_icon = focused ? "person-circle-sharp" : "people-outline";
+        return (
+          <AnimatIcon
+            name_icon={name_icon}
+            focused={focused}
+            color={color}
+            size={size}
+          />
+        );
+      },
+      tabBarActiveTintColor: "black",
+      tabBarInactiveTintColor: "gray",
+      tabBarLabelStyle: {
+        fontSize: 12,
+        fontWeight: "bold"
+      }
+    })}>
+      <Tab.Screen name="Home" component={MemberHome} />
+      {/* <Tab.Screen name="Attendance" component={Attendance} />
+      <Tab.Screen name="Progress" component={Progress} />
+      <Tab.Screen name="Profile" component={Profile} /> */}
+    </Tab.Navigator>
+  );
+}
+
+
 const App = () => {
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
   useEffect(() => {
@@ -104,18 +142,19 @@ const App = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="MainTabs"
+        initialRouteName="MemberTabs"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="MemberTabs" component={MemberTabs} />
         <Stack.Screen name="OnLoading" component={Onloading} />
         <Stack.Screen name="Attendance" component={Attendance} />
         <Stack.Screen name="Calendar" component={Calendar} />
         <Stack.Screen name="MembersPage" component={MembersPage} />
         <Stack.Screen name="Progress" component={Progress} />
         <Stack.Screen name="MemberDetails" component={MemberDetails} />
-        <Stack.Screen name="TrainerIncome" component={TrainerIncome}/>
-        <Stack.Screen name="ChangeSchedule" component={ChangeSchedule}/>
+        <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
+        <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
 
 
 
