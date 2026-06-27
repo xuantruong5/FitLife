@@ -16,6 +16,10 @@ import MemberDetails from "./src/pages/MemberDetails";
 import TrainerIncome from "./src/pages/TrainerIncome";
 import ChangeSchedule from "./src/pages/ChangeSchedule";
 import MemberHome from "./src/pages/Member/MemberHome";
+import MemberProgress from "./src/pages/Member/MemberProgress";
+import MemberTrainer from "./src/pages/Member/MemberTrainer";
+import MemberProfile from "./src/pages/Member/MemberProfile";
+import MemberNote from "./src/pages/Member/MemberNotes";
 
 
 
@@ -86,10 +90,10 @@ function MemberTabs() {
       tabBarIcon: ({ focused, color, size }) => {
         let name_icon = "";
         if (route.name === "Home") name_icon = focused ? "home" : "home-outline";
-        else if (route.name === "Login") name_icon = focused ? "heart-sharp" : "heart-outline";
+        else if (route.name === "Trainer") name_icon = focused ? "people-sharp" : "people-outline";
         else if (route.name === "ScanQR") name_icon = focused ? "scan-circle" : "scan";
         else if (route.name === "ChatBot") name_icon = focused ? "chatbubbles" : "chatbubbles-outline";
-        else if (route.name === "Profile") name_icon = focused ? "person-circle-sharp" : "people-outline";
+        else if (route.name === "Profile") name_icon = focused ? "person-circle-sharp" : "person-outline";
         return (
           <AnimatIcon
             name_icon={name_icon}
@@ -107,9 +111,9 @@ function MemberTabs() {
       }
     })}>
       <Tab.Screen name="Home" component={MemberHome} />
-      {/* <Tab.Screen name="Attendance" component={Attendance} />
-      <Tab.Screen name="Progress" component={Progress} />
-      <Tab.Screen name="Profile" component={Profile} /> */}
+      <Tab.Screen name="Trainer" component={MemberTrainer} />
+      {/* <Tab.Screen name="Progress" component={Progress} /> */}
+      <Tab.Screen name="Profile" component={MemberProfile} />
     </Tab.Navigator>
   );
 }
@@ -155,6 +159,8 @@ const App = () => {
         <Stack.Screen name="MemberDetails" component={MemberDetails} />
         <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
+        <Stack.Screen name="MemberProgress" component={MemberProgress}/>
+        <Stack.Screen name="MemberNote" component={MemberNote}/>
 
 
 

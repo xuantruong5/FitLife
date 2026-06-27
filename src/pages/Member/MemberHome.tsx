@@ -2,19 +2,20 @@ import { ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from 
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const MemberHome = () => {
+const MemberHome = ({ navigation }: any) => {
     const today = new Date();
     const getWeek = () => {
         const current = new Date();
         const day = current.getDay();
-        const firstDay = new Date(current);
-        firstDay.setDate(current.getDate() - day);
+
+        const monday = new Date(current);
+        monday.setDate(current.getDate() - (day === 0 ? 6 : day - 1));
         const arr = [];
         for (let i = 0; i < 7; i++) {
-            const d = new Date(firstDay);
-            d.setDate(firstDay.getDate() + i);
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
             arr.push({
-                dayName: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][i],
+                dayName: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][i],
                 date: d.getDate(),
                 isToday:
                     d.getDate() === today.getDate() &&
@@ -85,21 +86,53 @@ const MemberHome = () => {
             <Text style={styles.title}>Chức năng</Text>
 
             <View style={styles.grid}>
-                {[
-                    ["cube-outline", "Gói tập"],
-                    ["pulse-outline", "Tiến độ"],
-                    ["document-text-outline", "Ghi chú"],
-                    ["notifications-outline", "Thông báo"],
-                    ["people-outline", "HLV"],
-                    ["calendar-outline", "Đặt lịch"],
-                ].map((item, index) => (
-                    <TouchableOpacity key={index} style={styles.functionCard}>
-                        <Ionicons name={item[0]} size={26} color="#40A9FF" />
-                        <Text style={styles.functionText}>
-                            {item[1]}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    // onPress={() => navigation.navigate("PackagePage")}
+                >
+                    <Ionicons name="cube-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>Gói tập</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    onPress={() => navigation.navigate("MemberProgress")}
+                >
+                    <Ionicons name="pulse-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>Tiến độ</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    onPress={() => navigation.navigate("MemberNote")}
+                >
+                    <Ionicons name="document-text-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>Ghi chú</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    // onPress={() => navigation.navigate("NotificationPage")}
+                >
+                    <Ionicons name="notifications-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>Thông báo</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    // onPress={() => navigation.navigate("TrainerPage")}
+                >
+                    <Ionicons name="people-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>HLV</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.functionCard}
+                    // onPress={() => navigation.navigate("BookingPage")}
+                >
+                    <Ionicons name="calendar-outline" size={26} color="#40A9FF" />
+                    <Text style={styles.functionText}>Đặt lịch</Text>
+                </TouchableOpacity>
             </View>
 
             <View style={styles.scheduleHeader}>
@@ -146,7 +179,7 @@ const MemberHome = () => {
                 </View>
             </View>
 
-            
+
 
 
 
