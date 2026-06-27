@@ -20,7 +20,12 @@ import MemberProgress from "./src/pages/Member/MemberProgress";
 import MemberTrainer from "./src/pages/Member/MemberTrainer";
 import MemberProfile from "./src/pages/Member/MemberProfile";
 import MemberNote from "./src/pages/Member/MemberNotes";
-
+import MemberTrainerDetail from "./src/pages/Member/MemberTrainerDetail";
+import MemberLogin from "./src/pages/Member/MemberLogin";
+import MemberForgotPassword from "./src/pages/Member/MemberForgotPassword";
+import MemberRegister from "./src/pages/Member/MemberRegister";
+import MemberEditProfile from "./src/pages/Member/MemberEditProfile";
+import MemberChangePassword from "./src/pages/Member/MemberChangePassword";
 
 
 const Stack = createNativeStackNavigator();
@@ -161,9 +166,12 @@ const App = () => {
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
         <Stack.Screen name="MemberProgress" component={MemberProgress}/>
         <Stack.Screen name="MemberNote" component={MemberNote}/>
-
-
-
+        <Stack.Screen name="MemberTrainerDetail" component={MemberTrainerDetail}/>
+        <Stack.Screen name="MemberLogin" component={MemberLogin} />
+        <Stack.Screen name="MemberForgotPassword" component={MemberForgotPassword} />
+        <Stack.Screen name="MemberRegister" component={MemberRegister} />
+        <Stack.Screen name="MemberEditProfile" component={MemberEditProfile} />
+        <Stack.Screen name="MemberChangePassword" component={MemberChangePassword} />
 
       </Stack.Navigator>
 
