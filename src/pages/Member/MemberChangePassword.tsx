@@ -1,19 +1,8 @@
 import React, { useState } from "react";
-import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Alert,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {
-    widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import {widthPercentageToDP as wp,heightPercentageToDP as hp,} from "react-native-responsive-screen";
 
 const MemberChangePassword = ({ navigation }: any) => {
     const [email, setEmail] = useState("");
@@ -61,7 +50,7 @@ const MemberChangePassword = ({ navigation }: any) => {
                         <Ionicons name="arrow-back" size={22} color="#1E293B" />
                     </TouchableOpacity>
 
-                    <Text style={styles.headerTitle}>Quên mật khẩu</Text>
+                    <Text style={styles.headerTitle}>Đổi mật khẩu</Text>
 
                     <View style={{ width: 42 }} />
                 </View>

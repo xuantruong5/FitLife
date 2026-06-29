@@ -5,44 +5,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LineChart, BarChart } from "react-native-chart-kit";
 
 const MemberProgress = ({ navigation }: any) => {
-    const member = {
-        name: "Nguyễn Văn An",
-        currentWeight: 72.1,
-        weightChange: -3.9,
-        workoutCount: 13,
-        workoutPercent: 62,
-        bodyFat: 18.5,
-        bodyFatChange: -3.5,
-        muscleMass: 32.4,
-        muscleChange: 2.1,
-        bmi: 22.4,
-        bmiChange: -1.2,
-    };
-
-    const weightChartData = {
-        labels: ["T1", "T2", "T3", "T4", "T5", "T6"],
-        datasets: [
-            {
-                data: [76, 75.2, 74.1, 73.6, 72.9, 72.1],
-            },
-        ],
-    };
-
-    const workoutChartData = {
-        labels: ["T1", "T2", "T3", "T4", "T5", "T6"],
-        datasets: [
-            {
-                data: [6, 8, 10, 9, 12, 13],
-            },
-        ],
-    };
-
     const bodyStats = [
         {
             id: 1,
             title: "Cân nặng",
-            value: `${member.currentWeight} kg`,
-            change: `${member.weightChange} kg vs 6 tháng trước`,
+            value: "72.1 kg",
+            change: "-3.9 kg vs 6 tháng trước",
             color: "#53B8FF",
             icon: "scale-outline",
             percent: 72,
@@ -50,8 +18,8 @@ const MemberProgress = ({ navigation }: any) => {
         {
             id: 2,
             title: "Mỡ cơ thể",
-            value: `${member.bodyFat}%`,
-            change: `${member.bodyFatChange}% vs 6 tháng trước`,
+            value: "18.5%",
+            change: "-3.5% vs 6 tháng trước",
             color: "#FF9F43",
             icon: "body-outline",
             percent: 55,
@@ -59,8 +27,8 @@ const MemberProgress = ({ navigation }: any) => {
         {
             id: 3,
             title: "Khối cơ",
-            value: `${member.muscleMass} kg`,
-            change: `+${member.muscleChange} kg vs 6 tháng trước`,
+            value: "32.4 kg",
+            change: "+2.1 kg vs 6 tháng trước",
             color: "#22C55E",
             icon: "barbell-outline",
             percent: 68,
@@ -68,8 +36,8 @@ const MemberProgress = ({ navigation }: any) => {
         {
             id: 4,
             title: "BMI",
-            value: `${member.bmi}`,
-            change: `${member.bmiChange} vs 6 tháng trước`,
+            value: "22.4",
+            change: "-1.2 vs 6 tháng trước",
             color: "#8B5CF6",
             icon: "pulse-outline",
             percent: 60,
@@ -118,19 +86,27 @@ const MemberProgress = ({ navigation }: any) => {
                             <Text style={styles.cardLabel}>Cân nặng 6 tháng</Text>
 
                             <View style={styles.rowCenter}>
-                                <Text style={styles.bigValue}>{member.currentWeight}</Text>
+                                <Text style={styles.bigValue}>71.1</Text>
                                 <Text style={styles.unit}>kg</Text>
                             </View>
                         </View>
 
                         <View style={styles.greenBadge}>
                             <Ionicons name="trending-down-outline" size={14} color="#22C55E" />
-                            <Text style={styles.greenBadgeText}>{member.weightChange} kg</Text>
+                            <Text style={styles.greenBadgeText}>-3.9 kg</Text>
                         </View>
                     </View>
 
                     <LineChart
-                        data={weightChartData}
+                        data={{
+                            labels: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+                            datasets: [
+                                {
+                                    data: [76, 75.2, 74.1, 73.6, 72.9, 72.1],
+                                },
+                            ],
+                        }}
+
                         width={wp("80%")}
                         height={190}
                         bezier
@@ -148,19 +124,27 @@ const MemberProgress = ({ navigation }: any) => {
                             <Text style={styles.cardLabel}>Buổi tập / tháng</Text>
 
                             <View style={styles.rowCenter}>
-                                <Text style={styles.bigValue}>{member.workoutCount}</Text>
+                                <Text style={styles.bigValue}>13</Text>
                                 <Text style={styles.unit}>buổi</Text>
                             </View>
                         </View>
 
                         <View style={styles.purpleBadge}>
                             <Ionicons name="trending-up-outline" size={14} color="#8B5CF6" />
-                            <Text style={styles.purpleBadgeText}>+{member.workoutPercent}%</Text>
+                            <Text style={styles.purpleBadgeText}>+62%%</Text>
                         </View>
                     </View>
 
                     <BarChart
-                        data={workoutChartData}
+                        data={{
+                            labels: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+                            datasets: [
+                                {
+                                    data: [6, 8, 10, 9, 12, 13],
+                                },
+                            ],
+                        }}
+
                         width={wp("80%")}
                         height={210}
                         fromZero
