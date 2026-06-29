@@ -26,6 +26,10 @@ import MemberForgotPassword from "./src/pages/Member/MemberForgotPassword";
 import MemberRegister from "./src/pages/Member/MemberRegister";
 import MemberEditProfile from "./src/pages/Member/MemberEditProfile";
 import MemberChangePassword from "./src/pages/Member/MemberChangePassword";
+import Workout from "./src/pages/WorkoutSessions";
+import CreateSchedule from "./src/pages/CreateSchedule";
+import EditSchedule from "./src/pages/EditSchedule";
+import Test from "./src/pages/test";
 
 
 const Stack = createNativeStackNavigator();
@@ -151,7 +155,7 @@ const App = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="MemberTabs"
+        initialRouteName="MainTabs"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -172,6 +176,10 @@ const App = () => {
         <Stack.Screen name="MemberRegister" component={MemberRegister} />
         <Stack.Screen name="MemberEditProfile" component={MemberEditProfile} />
         <Stack.Screen name="MemberChangePassword" component={MemberChangePassword} />
+        <Stack.Screen name="Workout" component={Workout}/>
+        <Stack.Screen name="CreateSchedule" component={CreateSchedule}/>
+        <Stack.Screen name="EditSchedule" component={EditSchedule}/>
+        <Stack.Screen name="Test" component={Test}/>
 
       </Stack.Navigator>
 

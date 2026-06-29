@@ -53,18 +53,13 @@ const HomePage = ({ navigation }: any) => {
                             Xem lịch dạy
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[
-                        styles.card,
-                        {
-                            shadowColor: '#FF6B6B',
-                            elevation: 40,
-                        },
-                    ]}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Workout')} 
+                    style={[styles.card,{shadowColor: '#FF6B6B',elevation: 40,},]}>
                         <View style={[styles.iconBox, { backgroundColor: "#ea5b5b" }]}>
                             <Ionicons name="barbell-sharp" size={28} color="#fff" style={{ transform: [{ rotate: '135deg' }], }} />
                         </View>
                         <Text style={styles.cardText}>
-                            Quản lí buổi tập
+                            Quản Lý Lịch 
                         </Text>
                     </TouchableOpacity>
 

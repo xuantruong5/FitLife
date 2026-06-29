@@ -1,19 +1,8 @@
 import React, { useState } from "react";
-import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Alert,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {
-    widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import {widthPercentageToDP as wp,heightPercentageToDP as hp,} from "react-native-responsive-screen";
 
 const MemberEditProfile = ({ navigation }: any) => {
     const [fullName, setFullName] = useState("Nguyễn Văn An");
