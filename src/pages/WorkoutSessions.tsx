@@ -25,12 +25,12 @@ const Workout = ({ navigation }: any) => {
                     </View>
                     <Text style={styles.cardTitle}>Tạo lịch tập mới</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("EditSchedule")} style={[styles.card,{shadowColor: "#FF9434", },]}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate("EditSchedule")} style={[styles.card,{shadowColor: "#FF9434", },]}>
                     <View style={[styles.iconBox, {backgroundColor: "#FF9434" }]}>
                         <Ionicons name="document-text-outline" size={36} color="#fff" />
                     </View>
                     <Text style={styles.cardTitle}>Chỉnh sửa lịch tập</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity onPress={() => navigation.navigate("Calendar")} style={[styles.card,{shadowColor: "#3B82F6", },]}>
                     <View style={[styles.iconBox, {backgroundColor: "#3B82F6" }]}>
                         <CalendarSync size={34} color="#fff" strokeWidth={2.5} />
@@ -152,4 +152,4 @@ const styles = StyleSheet.create({
         color: "#16213E",
     },
 })
-export default Workout;
+export default Workout; 

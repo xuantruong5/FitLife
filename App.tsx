@@ -82,7 +82,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
-      <Tab.Screen name="login" component={Login} />
+      {/* <Tab.Screen name="login" component={Login} /> */}
       {/* <Tab.Screen name="ScanQR" component={ScanQR} />
             <Tab.Screen name="ChatBot" component={ChatBot} />
             <Tab.Screen name="Profile" component={Profile} /> */}
@@ -133,11 +133,11 @@ const App = () => {
   useEffect(() => {
     const sub = (payload: any) => {
       const { type, message } = payload;
-
-      // Tạm thời chỉ hiện thông báo
-      Alert.alert("Thông báo", message);
-    };
-
+      if (type === "auth") {
+        Alert.alert("Authentication Error", message);
+        navigationRef.navigate("Login" as never);
+      }
+    }
     notificationEmitter.on("thong_bao", sub);
 
     return () => {
@@ -155,11 +155,12 @@ const App = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="MainTabs"
+        initialRouteName="OnLoading"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="MemberTabs" component={MemberTabs} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="OnLoading" component={Onloading} />
         <Stack.Screen name="Attendance" component={Attendance} />
         <Stack.Screen name="Calendar" component={Calendar} />
@@ -168,18 +169,19 @@ const App = () => {
         <Stack.Screen name="MemberDetails" component={MemberDetails} />
         <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
-        <Stack.Screen name="MemberProgress" component={MemberProgress}/>
-        <Stack.Screen name="MemberNote" component={MemberNote}/>
-        <Stack.Screen name="MemberTrainerDetail" component={MemberTrainerDetail}/>
+        <Stack.Screen name="MemberProgress" component={MemberProgress} />
+        <Stack.Screen name="MemberNote" component={MemberNote} />
+        <Stack.Screen name="MemberTrainerDetail" component={MemberTrainerDetail} />
         <Stack.Screen name="MemberLogin" component={MemberLogin} />
         <Stack.Screen name="MemberForgotPassword" component={MemberForgotPassword} />
         <Stack.Screen name="MemberRegister" component={MemberRegister} />
         <Stack.Screen name="MemberEditProfile" component={MemberEditProfile} />
         <Stack.Screen name="MemberChangePassword" component={MemberChangePassword} />
-        <Stack.Screen name="Workout" component={Workout}/>
-        <Stack.Screen name="CreateSchedule" component={CreateSchedule}/>
-        <Stack.Screen name="EditSchedule" component={EditSchedule}/>
-        <Stack.Screen name="Test" component={Test}/>
+        <Stack.Screen name="Workout" component={Workout} />
+        <Stack.Screen name="CreateSchedule" component={CreateSchedule} />
+        <Stack.Screen name="EditSchedule" component={EditSchedule} />
+        <Stack.Screen name="Test" component={Test} />
+        
 
       </Stack.Navigator>
 

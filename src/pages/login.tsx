@@ -1,13 +1,99 @@
 import React, { useState } from "react";
-import { Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiFitlife from "../general/api";
+
+
+GoogleSignin.configure({
+    webClientId: '303952483583-2k3av4gg4o62ckbf2dkm89jd65u1p6ms.apps.googleusercontent.com', // Replace with your actual webClientId
+    offlineAccess: true, // Optional: Request refresh token for offline access
+});
 
 const Login = ({ navigation }: any) => {
     const [isChecked, setIsChecked] = useState(false);
     const [is_show, setIsShow] = useState(true);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isSigningIn, setIsSigningIn] = useState(false);
+    const [loginType, setLoginType] = useState<'member' | 'trainer'>('member'); // phân loại đăng nhập 
+
+
+    const signInWithGoogle = async () => {
+        if (isSigningIn == true) return; 
+        setIsSigningIn(true);
+        try {
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            const userInfo = await GoogleSignin.signIn();
+            if(userInfo && userInfo.type == "success") {
+                var user = userInfo.data.user;
+
+                try {
+                    const res = await apiFitlife.post('/login-google', user);
+                    if(res.data.status == true) {
+                        var message = res.data.message;
+                        var token = res.data.token;
+                        await AsyncStorage.setItem('token', token);
+                        await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+                        Alert.alert(message, "", [
+                            { text: "OK", onPress: () => navigation.navigate('MainTabs') }
+                        ]);
+                    }
+                } catch (error) {
+                    Alert.alert("Error logging in with Google");
+                }
+                
+            }
+        } catch (error: any) {
+            console.log('Google sign-in error code:', error.code);
+            console.log('Google sign-in error message:', error.message);
+        } finally {
+            setIsSigningIn(false);
+        }
+    }
+    const handleLogin = async () => {
+        var payload = {
+            email: email,
+            password: password,
+        };
+        const api =  loginType === "member" ? "/login" : "/trainer/login";
+       
+        
+    try {
+            const response = await apiFitlife.post(api, payload);
+            var message = response.data.message;
+            const  user = response.data.user;
+            var token = response.data.token;
+            var status = response.data.status;
+            if (status) {
+                // Lưu token hoặc thông tin người dùng nếu cần
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem("user", JSON.stringify(user));
+                await AsyncStorage.setItem("role", loginType);
+                // await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+                console.log("USER DATA", response.data.user);
+
+                Alert.alert(message, "", [
+                    { text: "OK", onPress: () =>  navigation.replace( loginType === "member" ? "MemberTabs" : "MainTabs" ),
+                },
+                ]);
+            } else {
+                Alert.alert(message);
+            }
+        } catch (error: any) {
+            const message = error?.data?.message || "Đăng nhập thất bại";
+            Alert.alert(message);
+            const listErrors = error?.data?.errors;
+            if (listErrors) {
+                const listFor = Object.fromEntries(
+                    Object.entries(listErrors).map(([k, v]: any) => [k, Array.isArray(v) ? v[0] : String(v)])
+                );
+            }
+        }
+    };
+
 
     return (
         
@@ -66,7 +152,7 @@ const Login = ({ navigation }: any) => {
                             </TouchableOpacity>
                         </View>
 
-                        <TouchableOpacity style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.buttonContainer} onPress={() => handleLogin()}>
                             <Text style={styles.buttonText}>LOGIN</Text>
                         </TouchableOpacity>
 
@@ -74,7 +160,7 @@ const Login = ({ navigation }: any) => {
                             <Text style={styles.orText}>Or Continue With</Text>
                             
                             <View style={styles.bottomBodyContainer}>
-                                <TouchableOpacity style={styles.socialButton}>
+                                <TouchableOpacity style={styles.socialButton} onPress={signInWithGoogle}>
                                     <Image style={styles.bottomItemImage} source={require('../assets/images/google.png')} />
                                 </TouchableOpacity>
                                 
