@@ -162,7 +162,7 @@ const CreateSchedule = ({ navigation }: any) => {
                 </View>
                 <TouchableOpacity style={styles.submitBtn}>
                     <Text style={styles.submitText}>
-                        Gửi Admin Phê Duyệt
+                        Send 
                     </Text>
                 </TouchableOpacity>
 
