@@ -2,6 +2,8 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiFitlife from "../../general/api"; 
 
 const MemberProfile = ({ navigation }: any) => {
     const member = {
@@ -34,6 +36,54 @@ const MemberProfile = ({ navigation }: any) => {
 
         Alert.alert("Thông báo", "Chức năng này sẽ được phát triển sau");
     };
+
+    const handleLogout = () => {
+        Alert.alert(
+            "Đăng xuất",
+            "Bạn muốn đăng xuất như thế nào?",
+            [
+                {
+                    text: "Hủy",
+                    style: "cancel",
+                },
+                {
+                    text: "Thiết bị này",
+                    onPress: () => logout(false),
+                },
+                {
+                    text: "Tất cả thiết bị",
+                    style: "destructive",
+                    onPress: () => logout(true),
+                },
+            ]
+        );
+    };
+    const logout = async (all: boolean) => {
+        try {
+            const api = all ? "/member/logout-all" : "/member/logout";
+
+            const response = await apiFitlife.post(api);
+
+            Alert.alert(response.data.message);
+
+            await AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("user");
+            await AsyncStorage.removeItem("role");
+
+            navigation.replace("Login");
+        } catch (error: any) {
+            const message = error?.data?.message || "Đăng xuất thất bại";
+
+            Alert.alert(message);
+
+            await AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("user");
+            await AsyncStorage.removeItem("role");
+
+            navigation.replace("Login");
+        }
+    };
+    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -193,7 +243,7 @@ const MemberProfile = ({ navigation }: any) => {
                 <TouchableOpacity
                     style={styles.logoutBtn}
                     activeOpacity={0.8}
-                    onPress={() => Alert.alert("Đăng xuất", "Bạn có muốn đăng xuất không?")}
+                    onPress={handleLogout}
                 >
                     <Ionicons name="log-out-outline" size={20} color="#EF4444" />
                     <Text style={styles.logoutText}>Đăng xuất</Text>
