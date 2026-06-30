@@ -14,46 +14,54 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import apiFitlife from "../../general/api";
 
 const MemberRegister = ({ navigation }: any) => {
-    const [fullName, setFullName] = useState("");
+    const [is_show, setIsshow] = useState(true);
+    const [isChecked, setIsChecked] = useState(false);
+
+
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
-    const [showPassword, setShowPassword] = useState(true);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(true);
+    const [ErrorMessage, setErrorMessage] = useState<Record<string, string>>({});
     const [isAgree, setIsAgree] = useState(false);
 
-    const handleRegister = () => {
-        if (!fullName || !email || !phone || !password || !confirmPassword) {
-            Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin");
-            return;
+    const handleRegister = async () => {
+        var payload = {
+            email: email,
+            phone: phone,
+            name: name,
+            password: password,
+            re_password: confirmPassword
         }
+        try {
+            const response = await apiFitlife.post("/register", payload);
+            var message = response.data.message;
+            Alert.alert(message, "", [
+                { text: "OK", onPress: () => navigation.navigate('Login') }
+            ]);
 
-        if (password.length < 8) {
-            Alert.alert("Thông báo", "Mật khẩu phải có ít nhất 8 ký tự");
-            return;
+        } catch (error: any) {
+            var listErrors = error.response?.data?.errors;
+            if (listErrors) {
+                const listFor = Object.fromEntries(
+                    Object.entries(listErrors).map(([k, v]: any) => [k, Array.isArray(v) ? v[0] : String(v)])
+                );
+                setErrorMessage(listFor);
+            }
         }
-
-        if (password !== confirmPassword) {
-            Alert.alert("Thông báo", "Mật khẩu xác nhận không khớp");
-            return;
-        }
-
-        if (!isAgree) {
-            Alert.alert("Thông báo", "Vui lòng đồng ý với điều khoản sử dụng");
-            return;
-        }
-
-        Alert.alert("Thành công", "Đăng ký tài khoản thành công", [
-            {
-                text: "OK",
-                onPress: () => navigation.navigate("MemberLogin"),
-            },
-        ]);
     };
+    const errorBorder = (field: string) => {
+        return ErrorMessage[field] ? { borderColor: 'red', borderWidth: 1 } : {};
+    }
+
+    const TextInLine = (field: string) =>
+        ErrorMessage[field] ? (
+            <Text style={styles.errorInline}>* {ErrorMessage[field]}</Text>
+        ) : null;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -88,20 +96,21 @@ const MemberRegister = ({ navigation }: any) => {
 
                 <View style={styles.formCard}>
                     <Text style={styles.label}>Họ và tên</Text>
-                    <View style={styles.inputBox}>
+                    <View style={[styles.inputBox, errorBorder('name')]}>
                         <Ionicons name="person-outline" size={20} color="#A7AFBF" />
 
                         <TextInput
                             placeholder="Nhập họ và tên"
                             placeholderTextColor="#A7AFBF"
                             style={styles.input}
-                            value={fullName}
-                            onChangeText={setFullName}
+                            value={name}
+                            onChangeText={setName}
                         />
+                        {TextInLine('name')}
                     </View>
 
                     <Text style={styles.label}>Email</Text>
-                    <View style={styles.inputBox}>
+                    <View style={[styles.inputBox, errorBorder('email')]}>
                         <Ionicons name="mail-outline" size={20} color="#A7AFBF" />
 
                         <TextInput
@@ -113,10 +122,11 @@ const MemberRegister = ({ navigation }: any) => {
                             value={email}
                             onChangeText={setEmail}
                         />
+                        {TextInLine('email')}
                     </View>
 
                     <Text style={styles.label}>Số điện thoại</Text>
-                    <View style={styles.inputBox}>
+                    <View style={[styles.inputBox, errorBorder('phone')]}>
                         <Ionicons name="call-outline" size={20} color="#A7AFBF" />
 
                         <TextInput
@@ -127,50 +137,53 @@ const MemberRegister = ({ navigation }: any) => {
                             value={phone}
                             onChangeText={setPhone}
                         />
+                        {TextInLine('so_dien_thoai')}
                     </View>
 
                     <Text style={styles.label}>Mật khẩu</Text>
-                    <View style={styles.inputBox}>
+                    <View style={[styles.inputBox, errorBorder('password')]}>
                         <Ionicons name="lock-closed-outline" size={20} color="#A7AFBF" />
 
                         <TextInput
                             placeholder="Nhập mật khẩu"
                             placeholderTextColor="#A7AFBF"
                             style={styles.input}
-                            secureTextEntry={showPassword}
+                            secureTextEntry={is_show}
                             value={password}
                             onChangeText={setPassword}
                         />
 
-                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                        <TouchableOpacity onPress={() => setIsshow(!is_show)}>
                             <Ionicons
-                                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                name={is_show ? "eye-off-outline" : "eye-outline"}
                                 size={20}
                                 color="#A7AFBF"
                             />
                         </TouchableOpacity>
+                        {TextInLine('password')}
                     </View>
 
                     <Text style={styles.label}>Xác nhận mật khẩu</Text>
-                    <View style={styles.inputBox}>
+                    <View style={[styles.inputBox, errorBorder('re_password')]}>
                         <Ionicons name="lock-closed-outline" size={20} color="#A7AFBF" />
 
                         <TextInput
                             placeholder="Nhập lại mật khẩu"
                             placeholderTextColor="#A7AFBF"
                             style={styles.input}
-                            secureTextEntry={showConfirmPassword}
+                            secureTextEntry={is_show}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                         />
 
-                        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                        <TouchableOpacity onPress={() => setIsshow(!is_show)}>
                             <Ionicons
-                                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                                name={is_show ? "eye-off-outline" : "eye-outline"}
                                 size={20}
                                 color="#A7AFBF"
                             />
                         </TouchableOpacity>
+                        {TextInLine('re_password')}
                     </View>
 
                     <TouchableOpacity
@@ -201,7 +214,7 @@ const MemberRegister = ({ navigation }: any) => {
                 <View style={styles.loginRow}>
                     <Text style={styles.loginText}>Đã có tài khoản?</Text>
 
-                    <TouchableOpacity onPress={() => navigation.navigate("MemberLogin")}>
+                    <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                         <Text style={styles.loginLink}> Đăng nhập</Text>
                     </TouchableOpacity>
                 </View>
@@ -214,6 +227,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F6F8FC",
+    },
+    errorInline: {
+        position: 'absolute',
+        left: 44,
+        top: -10,
+        fontSize: 14,
+        color: '#FF4D4F',
+        backgroundColor: '#fff',
+        paddingHorizontal: 5,
     },
 
     circleOne: {

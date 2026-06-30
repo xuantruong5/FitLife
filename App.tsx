@@ -30,6 +30,7 @@ import Workout from "./src/pages/WorkoutSessions";
 import CreateSchedule from "./src/pages/CreateSchedule";
 import EditSchedule from "./src/pages/EditSchedule";
 import Test from "./src/pages/test";
+import Profile from "./src/pages/Profile";
 
 
 const Stack = createNativeStackNavigator();
@@ -84,8 +85,8 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomePage} />
       {/* <Tab.Screen name="login" component={Login} /> */}
       {/* <Tab.Screen name="ScanQR" component={ScanQR} />
-            <Tab.Screen name="ChatBot" component={ChatBot} />
-            <Tab.Screen name="Profile" component={Profile} /> */}
+      <Tab.Screen name="ChatBot" component={ChatBot} /> */}
+      <Tab.Screen name="Profile" component={Profile} />
 
     </Tab.Navigator>
 
