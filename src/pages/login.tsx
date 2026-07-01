@@ -164,6 +164,9 @@ const Login = ({ navigation }: any) => {
 
             Alert.alert("Đăng nhập thất bại");
         } catch (error: any) {
+            console.log("LOGIN ERROR:", error?.response?.data);
+            console.log("STATUS:", error?.response?.status);
+            console.log("MESSAGE:", error?.message);
             Alert.alert(error?.data?.message || "Đăng nhập thất bại");
         }
     };

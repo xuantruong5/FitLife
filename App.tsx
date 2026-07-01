@@ -31,6 +31,7 @@ import CreateSchedule from "./src/pages/CreateSchedule";
 import EditSchedule from "./src/pages/EditSchedule";
 import Test from "./src/pages/test";
 import Profile from "./src/pages/Profile";
+import MemberPackage from "./src/pages/Member/MemberPackage";
 
 
 const Stack = createNativeStackNavigator();
@@ -181,6 +182,7 @@ const App = () => {
         <Stack.Screen name="Workout" component={Workout} />
         <Stack.Screen name="CreateSchedule" component={CreateSchedule} />
         <Stack.Screen name="EditSchedule" component={EditSchedule} />
+        <Stack.Screen name="MemberPackage" component={MemberPackage}/>
         <Stack.Screen name="Test" component={Test} />
         
 

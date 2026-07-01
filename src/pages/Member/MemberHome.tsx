@@ -1,6 +1,8 @@
 import { ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 const MemberHome = ({ navigation }: any) => {
     const today = new Date();
@@ -32,16 +34,30 @@ const MemberHome = ({ navigation }: any) => {
     else if (hour < 18) greeting = "Chào buổi chiều";
 
 
+    // lấy dữ liệu real 
+    const [user, setUser] = useState<any>(null);
+    useEffect(() => {
+        const loadUser = async () => {
+            const data = await AsyncStorage.getItem("user");
+            if (data) {
+                setUser(JSON.parse(data));
+            }
+        };
+
+        loadUser();
+    }, []);
+
+
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false} >
             <View style={styles.header}>
                 <View>
                     <Text style={styles.greeting}>{greeting}👋 </Text>
-                    <Text style={styles.name}>Nguyễn Văn An</Text>
+                    <Text style={styles.name}>{user?.name}</Text>
                 </View>
 
                 <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>An</Text>
+                    <Text style={styles.avatarText}>{user?.name?.charAt(0) || "U"}</Text>
                 </View>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }}>
@@ -88,7 +104,7 @@ const MemberHome = ({ navigation }: any) => {
             <View style={styles.grid}>
                 <TouchableOpacity
                     style={styles.functionCard}
-                    // onPress={() => navigation.navigate("PackagePage")}
+                    onPress={() => navigation.navigate("MemberPackage")}
                 >
                     <Ionicons name="cube-outline" size={26} color="#40A9FF" />
                     <Text style={styles.functionText}>Gói tập</Text>

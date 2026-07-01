@@ -4,12 +4,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiFitlife from "../../general/api"; 
+import { useEffect, useState } from "react";
 
 const MemberProfile = ({ navigation }: any) => {
+    const [user, setUser] = useState<any>(null);
+
+
     const member = {
-        name: "Nguyễn Văn An",
-        email: "an.nguyen@gmail.com",
-        phone: "0901 234 567",
         packageName: "Tiêu Chuẩn",
         startDate: "Từ 01/2024",
         totalSessions: "Còn 8 buổi",
@@ -83,6 +84,13 @@ const MemberProfile = ({ navigation }: any) => {
             navigation.replace("Login");
         }
     };
+    useEffect(() => {
+        const loadUser = async () => {
+            const data = await AsyncStorage.getItem("user");
+            if (data) setUser(JSON.parse(data));
+        };
+        loadUser();
+    }, []);
     
 
     return (
@@ -95,7 +103,7 @@ const MemberProfile = ({ navigation }: any) => {
 
                 <View style={styles.profileCard}>
                     <View style={styles.avatarBox}>
-                        <Text style={styles.avatarText}>AN</Text>
+                        <Text style={styles.avatarText}>{user?.name?.trim().split(" ").pop() || "U"}</Text>
 
                         <View style={styles.editAvatar}>
                             <Ionicons name="create-outline" size={12} color="#FFFFFF" />
@@ -103,9 +111,9 @@ const MemberProfile = ({ navigation }: any) => {
                     </View>
 
                     <View style={styles.profileInfo}>
-                        <Text style={styles.memberName}>{member.name}</Text>
-                        <Text style={styles.memberText}>{member.email}</Text>
-                        <Text style={styles.memberText}>{member.phone}</Text>
+                        <Text style={styles.memberName}>{user?.name}</Text>
+                        <Text style={styles.memberText}>{user?.email}</Text>
+                        <Text style={styles.memberText}>{user?.phone}</Text>
 
                         <View style={styles.packageRow}>
                             <View style={styles.packageBadge}>
