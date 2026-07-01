@@ -32,6 +32,10 @@ import EditSchedule from "./src/pages/EditSchedule";
 import Test from "./src/pages/test";
 import Profile from "./src/pages/Profile";
 import MemberPackage from "./src/pages/Member/MemberPackage";
+import MemberBooking from "./src/pages/Member/MemberBooking";
+import selectPackage from "./src/pages/Member/SelectPackage";
+import selecttrainer from "./src/pages/Member/SelectTrainer";
+
 
 
 const Stack = createNativeStackNavigator();
@@ -183,6 +187,10 @@ const App = () => {
         <Stack.Screen name="CreateSchedule" component={CreateSchedule} />
         <Stack.Screen name="EditSchedule" component={EditSchedule} />
         <Stack.Screen name="MemberPackage" component={MemberPackage}/>
+        <Stack.Screen name="MemberBooking" component={MemberBooking}/>
+        <Stack.Screen name="selectPackage" component={selectPackage} /> 
+        <Stack.Screen name="selecttrainer" component={selecttrainer}/>
+        
         <Stack.Screen name="Test" component={Test} />
         
 

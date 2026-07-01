@@ -4,457 +4,352 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const MemberTrainerDetail = ({ navigation, route }: any) => {
-    const trainer = route.params?.trainer;
-
-    if (!trainer) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={22} color="#1E293B" />
-                    </TouchableOpacity>
-
-                    <Text style={styles.headerTitle}>Chi tiết huấn luyện viên</Text>
-
-                    <View style={{ width: 42 }} />
-                </View>
-
-                <View style={styles.emptyBox}>
-                    <Text style={styles.emptyText}>Không có dữ liệu huấn luyện viên</Text>
-                </View>
-            </SafeAreaView>
-        );
-    }
-
-    const role = trainer.role || trainer.type || "Huấn luyện viên";
-    const skills = trainer.skills || [];
-    const rating = trainer.rating || 4.9;
-    const reviews = trainer.reviews || 86;
-    const experience = trainer.experience || "8 năm";
-    const students = trainer.students || "120+";
-    const evaluate = trainer.evaluate || trainer.price || `${rating}★`;
-
-    const description =
-        trainer.description ||
-        `Huấn luyện viên ${trainer.name} có kinh nghiệm trong lĩnh vực ${role.toLowerCase()}. Chuyên hỗ trợ học viên cải thiện sức khỏe, vóc dáng và duy trì thói quen tập luyện phù hợp.`;
-
-    const schedule =
-        trainer.schedule ||
-        trainer.time?.map((time: string, index: number) => ({
-            day: index === 0 ? "Buổi sáng" : "Buổi chiều",
-            subject: role,
-            time: time,
-        })) ||
-        [];
-
-    const handleCall = () => {
-        if (trainer.phone) {
-            Linking.openURL(`tel:${trainer.phone}`);
-        } else {
-            Alert.alert("Thông báo", "Chưa có số điện thoại của huấn luyện viên");
-        }
-    };
-
-    const handleMessage = () => {
-        Alert.alert("Nhắn tin", `Mở khung chat với ${trainer.name}`);
-    };
-
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={22} color="#1E293B" />
+            <ScrollView showsVerticalScrollIndicator={false}>
+
+                <TouchableOpacity
+                    style={styles.backBtn}
+                    onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={22} color="#222" />
                 </TouchableOpacity>
 
-                <Text style={styles.headerTitle}>Chi tiết huấn luyện viên</Text>
+                {/* Trainer Card */}
+                <View style={styles.card}>
 
-                <TouchableOpacity style={styles.heartBtn}>
-                    <Ionicons name="heart-outline" size={23} color="#1E293B" />
-                </TouchableOpacity>
-            </View>
+                    <View style={styles.topRow}>
+                        <Image
+                            source={{
+                                uri: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400",
+                            }}
+                            style={styles.avatar}
+                        />
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                <View style={styles.profileCard}>
-                    <View style={styles.profileTop}>
-                        <Image source={{ uri: trainer.image }} style={styles.avatar} />
+                        <View style={{ marginLeft: 15, flex: 1 }}>
+                            <Text style={styles.name}>Phạm Minh Tuấn</Text>
 
-                        <View style={styles.profileInfo}>
-                            <Text style={styles.trainerName}>{trainer.name}</Text>
-                            <Text style={styles.trainerRole}>{role}</Text>
+                            <Text style={styles.job}>
+                                Huấn luyện viên cá nhân
+                            </Text>
 
                             <View style={styles.ratingRow}>
-                                <Ionicons name="star" size={13} color="#FFB020" />
-                                <Ionicons name="star" size={13} color="#FFB020" />
-                                <Ionicons name="star" size={13} color="#FFB020" />
-                                <Ionicons name="star" size={13} color="#FFB020" />
-                                <Ionicons name="star-half" size={13} color="#FFB020" />
+                                <Ionicons name="star" color="#F8B400" size={15} />
+                                <Ionicons name="star" color="#F8B400" size={15} />
+                                <Ionicons name="star" color="#F8B400" size={15} />
+                                <Ionicons name="star" color="#F8B400" size={15} />
+                                <Ionicons name="star" color="#F8B400" size={15} />
 
-                                <Text style={styles.ratingText}>
-                                    {rating} ({reviews} đánh giá)
+                                <Text style={styles.rating}>
+                                    4.9 (86 đánh giá)
                                 </Text>
                             </View>
                         </View>
                     </View>
 
-                    <View style={styles.summaryRow}>
-                        <View style={styles.summaryBox}>
-                            <Text style={styles.summaryValue}>{experience}</Text>
-                            <Text style={styles.summaryLabel}>Kinh nghiệm</Text>
-                        </View>
+                    {/* Info */}
 
-                        <View style={[styles.summaryBox, { backgroundColor: "#ECFFF5" }]}>
-                            <Text style={[styles.summaryValue, { color: "#22C55E" }]}>
-                                {students}
-                            </Text>
-                            <Text style={styles.summaryLabel}>Học viên</Text>
-                        </View>
+                    <View style={styles.infoRow}>
+                        {[
+                            { value: "8 năm", label: "Kinh nghiệm" },
+                            { value: "120+", label: "Học viên" },
+                            { value: "4.9★", label: "Đánh giá" },
+                        ].map((item, index) => (
+                            <View key={index} style={[styles.infoBox, { backgroundColor: index === 0 ? "#EFF6FF" : index === 1 ? "#ECFDF5" : "#FFF7ED", },]}>
+                                <Text style={[styles.infoNumber, { color: index === 0 ? "#60A5FA" : index === 1 ? "#22C55E" : "#F59E0B", },]} >
+                                    {item.value}
+                                </Text>
 
-                        <View style={[styles.summaryBox, { backgroundColor: "#FFF7E8" }]}>
-                            <Text style={[styles.summaryValue, { color: "#FF9F43" }]}>
-                                {evaluate}
-                            </Text>
-                            <Text style={styles.summaryLabel}>Đánh giá</Text>
-                        </View>
+                                <Text style={styles.infoText}>{item.label}</Text>
+                            </View>
+                        ))}
                     </View>
 
                     <Text style={styles.description}>
-                        {description}
+                        Chứng chỉ NASM-CPT & Precision Nutrition.
+                        Chuyên gia về giảm cân, tăng cơ và cải thiện sức khỏe.
+                        Đã huấn luyện nhiều vận động viên chuyên nghiệp
+                        và học viên phổ thông.
                     </Text>
+
                 </View>
+
+                {/* Skill */}
 
                 <Text style={styles.sectionTitle}>Chuyên môn</Text>
 
-                <View style={styles.skillWrap}>
-                    {skills.map((item: string, index: number) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.skillBadge,
-                                index % 4 === 0 && { backgroundColor: "#E8F4FF" },
-                                index % 4 === 1 && { backgroundColor: "#ECFFF5" },
-                                index % 4 === 2 && { backgroundColor: "#FFF3E8" },
-                                index % 4 === 3 && { backgroundColor: "#F3ECFF" },
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.skillText,
-                                    index % 4 === 0 && { color: "#53B8FF" },
-                                    index % 4 === 1 && { color: "#22C55E" },
-                                    index % 4 === 2 && { color: "#FF8A00" },
-                                    index % 4 === 3 && { color: "#8B5CF6" },
-                                ]}
-                            >
-                                {item}
-                            </Text>
-                        </View>
-                    ))}
+                <View style={styles.skillRow}>
+                    {["Strength Training", "HIIT", "CrossFit", "Dinh dưỡng"].map(
+                        (item, index) => (
+                            <View key={index} style={[styles.skillBox, { backgroundColor: index === 0 ? "#EAF4FF" : index === 1 ? "#EAFBF0" : index === 2 ? "#FFF2E8" : "#F3EDFF", },]}>
+                                <Text style={[styles.skill, { color: index === 0 ? "#4F9CF9" : index === 1 ? "#22C55E" : index === 2 ? "#FB923C" : "#A855F7", },]} >
+                                    {item}
+                                </Text>
+                            </View>
+                        )
+                    )}
                 </View>
+
+                {/* Schedule */}
 
                 <Text style={styles.sectionTitle}>Lịch trong tuần</Text>
 
                 <View style={styles.scheduleCard}>
-                    {schedule.map((item: any, index: number) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.scheduleRow,
-                                index !== schedule.length - 1 && styles.borderBottom,
-                            ]}
-                        >
-                            <View style={styles.scheduleInfo}>
-                                <Text style={styles.scheduleDay}>{item.day}</Text>
-                                <Text style={styles.scheduleSubject}>{item.subject}</Text>
-                            </View>
 
-                            <View style={styles.timeBadge}>
-                                <Text style={styles.timeText}>{item.time}</Text>
-                            </View>
+                    <View style={styles.scheduleItem}>
+                        <View>
+                            <Text style={styles.day}>Thứ 2 & 4 & 6</Text>
+                            <Text style={styles.type}>HIIT Cardio</Text>
                         </View>
-                    ))}
+
+                        <View style={styles.timeBox}>
+                            <Text style={styles.time}>06:30 - 07:30</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.line} />
+
+                    <View style={styles.scheduleItem}>
+                        <View>
+                            <Text style={styles.day}>Thứ 3 & 5</Text>
+                            <Text style={styles.type}>Strength Training</Text>
+                        </View>
+
+                        <View style={styles.timeBox}>
+                            <Text style={styles.time}>18:00 - 19:15</Text>
+                        </View>
+                    </View>
+
                 </View>
 
-                <View style={styles.actionRow}>
-                    <TouchableOpacity style={styles.callBtn} onPress={handleCall}>
-                        <Ionicons name="call-outline" size={18} color="#FFFFFF" />
-                        <Text style={styles.callText}>Gọi điện</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.messageBtn} onPress={handleMessage}>
-                        <Ionicons name="chatbubble-outline" size={18} color="#53B8FF" />
-                        <Text style={styles.messageText}>Nhắn tin</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
+
+            {/* Bottom Button */}
+
+            <View style={styles.bottom}>
+
+                <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL("tel:0123456789")}>
+                    <Ionicons name="call-outline" color="#fff" size={20} />
+                    <Text style={styles.callText}>Gọi điện</Text>
+
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.messageBtn}>
+                    <Ionicons name="chatbubble-outline" color="#60A5FA" size={20} />
+                    <Text style={styles.messageText}>Nhắn tin</Text>
+                </TouchableOpacity>
+
+            </View>
+
         </SafeAreaView>
     );
-};
 
+}
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F6F8FC",
     },
 
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: wp("5%"),
-        marginTop: hp("1%"),
-        marginBottom: hp("2%"),
-    },
-
     backBtn: {
-        width: 42,
-        height: 42,
-        borderRadius: 12,
-        backgroundColor: "#FFFFFF",
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
-        elevation: 3,
+        margin: 20,
+        elevation: 3
     },
 
-    heartBtn: {
-        width: 42,
-        height: 42,
-        borderRadius: 12,
-        backgroundColor: "#FFFFFF",
-        justifyContent: "center",
-        alignItems: "center",
-        elevation: 3,
-    },
-
-    headerTitle: {
-        fontSize: wp("4.5%"),
-        fontWeight: "800",
-        color: "#1E293B",
-    },
-
-    scrollContent: {
-        paddingBottom: hp("10%"),
-    },
-
-    profileCard: {
-        backgroundColor: "#FFFFFF",
-        marginHorizontal: wp("5%"),
+    card: {
+        backgroundColor: "#fff",
         borderRadius: 24,
-        padding: wp("4%"),
-        elevation: 4,
-        marginBottom: hp("2%"),
+        marginHorizontal: 20,
+        padding: 20,
+        elevation: 6
     },
 
-    profileTop: {
+    topRow: {
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "center"
     },
 
     avatar: {
-        width: 82,
-        height: 82,
-        borderRadius: 22,
-        backgroundColor: "#E5E7EB",
+        width: 90,
+        height: 90,
+        borderRadius: 20
     },
 
-    profileInfo: {
-        flex: 1,
-        marginLeft: wp("4%"),
-    },
-
-    trainerName: {
-        fontSize: wp("4.5%"),
-        fontWeight: "800",
-        color: "#1E293B",
-    },
-
-    trainerRole: {
-        fontSize: wp("3.2%"),
-        color: "#53B8FF",
+    name: {
+        fontSize: 22,
         fontWeight: "700",
-        marginTop: 4,
+        color: "#1E293B"
+    },
+
+    job: {
+        color: "#3B82F6",
+        fontSize: 15,
+        marginTop: 4
     },
 
     ratingRow: {
         flexDirection: "row",
         alignItems: "center",
-        flexWrap: "wrap",
-        marginTop: 8,
+        marginTop: 8
     },
 
-    ratingText: {
-        color: "#64748B",
-        fontSize: wp("3%"),
-        marginLeft: 5,
+    rating: {
+        marginLeft: 8,
+        color: "#64748B"
     },
 
-    summaryRow: {
+    infoRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginTop: hp("2%"),
+        marginTop: 25
     },
 
-    summaryBox: {
-        width: "31%",
-        backgroundColor: "#E8F4FF",
-        borderRadius: 16,
-        paddingVertical: hp("1.3%"),
-        alignItems: "center",
+    infoBox: {
+        width: 95,
+        backgroundColor: "#F8FAFC",
+        borderRadius: 15,
+        paddingVertical: 15,
+        alignItems: "center"
     },
 
-    summaryValue: {
-        color: "#53B8FF",
-        fontSize: wp("3.5%"),
-        fontWeight: "800",
+    infoNumber: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: "#3B82F6"
     },
 
-    summaryLabel: {
+    infoText: {
         color: "#94A3B8",
-        fontSize: wp("2.7%"),
-        marginTop: 4,
-        fontWeight: "600",
+        marginTop: 5
     },
 
     description: {
-        marginTop: hp("2%"),
-        color: "#94A3B8",
-        fontSize: wp("3.3%"),
-        lineHeight: 22,
-        fontWeight: "500",
+        marginTop: 20,
+        color: "#64748B",
+        lineHeight: 24,
+        fontSize: 15
     },
 
     sectionTitle: {
-        fontSize: wp("4.5%"),
-        fontWeight: "800",
-        color: "#1E293B",
-        marginHorizontal: wp("5%"),
-        marginBottom: hp("1.2%"),
+        fontSize: 24,
+        fontWeight: "700",
+        marginHorizontal: 20,
+        marginTop: 25,
+        marginBottom: 15
     },
 
-    skillWrap: {
+    skillRow: {
         flexDirection: "row",
         flexWrap: "wrap",
-        marginHorizontal: wp("5%"),
-        marginBottom: hp("2%"),
+        marginHorizontal: 20
+    },
+    skillBox: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginRight: 10,
+        marginBottom: 10,
     },
 
-    skillBadge: {
-        paddingHorizontal: wp("3.5%"),
-        paddingVertical: hp("0.9%"),
-        borderRadius: 18,
-        marginRight: wp("2%"),
-        marginBottom: hp("1%"),
-    },
-
-    skillText: {
-        fontSize: wp("3%"),
-        fontWeight: "800",
+    skill: {
+        fontWeight: "600",
+        fontSize: 14,
     },
 
     scheduleCard: {
-        backgroundColor: "#FFFFFF",
-        marginHorizontal: wp("5%"),
-        borderRadius: 22,
-        paddingHorizontal: wp("4%"),
+        backgroundColor: "#fff",
+        marginHorizontal: 20,
+        borderRadius: 20,
         elevation: 4,
-        marginBottom: hp("2%"),
+        marginBottom: 100
     },
 
-    scheduleRow: {
+    scheduleItem: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingVertical: hp("1.8%"),
+        padding: 18
     },
 
-    scheduleInfo: {
-        flex: 1,
-        paddingRight: wp("2%"),
+    day: {
+        fontWeight: "700",
+        fontSize: 16,
+        color: "#1E293B"
     },
 
-    borderBottom: {
-        borderBottomWidth: 1,
-        borderBottomColor: "#E5E7EB",
-    },
-
-    scheduleDay: {
-        color: "#1E293B",
-        fontWeight: "800",
-        fontSize: wp("3.3%"),
-    },
-
-    scheduleSubject: {
+    type: {
         color: "#94A3B8",
-        fontSize: wp("3%"),
-        marginTop: 3,
-        fontWeight: "600",
+        marginTop: 4
     },
 
-    timeBadge: {
-        backgroundColor: "#E8F4FF",
-        paddingHorizontal: wp("3%"),
-        paddingVertical: hp("0.8%"),
-        borderRadius: 18,
+    timeBox: {
+        backgroundColor: "#E8F3FF",
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20
     },
 
-    timeText: {
-        color: "#53B8FF",
-        fontWeight: "800",
-        fontSize: wp("3%"),
+    time: {
+        color: "#3B82F6",
+        fontWeight: "700"
     },
 
-    actionRow: {
+    line: {
+        height: 1,
+        backgroundColor: "#E5E7EB"
+    },
+
+    bottom: {
+        position: "absolute",
+        bottom: 20,
+        left: 20,
+        right: 20,
         flexDirection: "row",
-        marginHorizontal: wp("5%"),
-        gap: 12,
+        justifyContent: "space-between"
     },
 
     callBtn: {
         flex: 1,
-        backgroundColor: "#4ADE80",
+        backgroundColor: "#3DDC84",
+        height: 55,
         borderRadius: 16,
-        paddingVertical: hp("1.5%"),
-        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
+        flexDirection: "row",
+        marginRight: 10
     },
 
     callText: {
-        color: "#FFFFFF",
-        fontWeight: "800",
-        marginLeft: 6,
-        fontSize: wp("3.5%"),
+        color: "#fff",
+        fontWeight: "700",
+        marginLeft: 8,
+        fontSize: 16
     },
 
     messageBtn: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#fff",
+        height: 55,
         borderRadius: 16,
-        paddingVertical: hp("1.5%"),
-        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        elevation: 3,
+        flexDirection: "row",
+        elevation: 4
     },
 
     messageText: {
-        color: "#53B8FF",
-        fontWeight: "800",
-        marginLeft: 6,
-        fontSize: wp("3.5%"),
-    },
-
-    emptyBox: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: wp("5%"),
-    },
-
-    emptyText: {
-        fontSize: wp("4%"),
-        color: "#94A3B8",
+        color: "#60A5FA",
         fontWeight: "700",
+        marginLeft: 8,
+        fontSize: 16
     },
-});
+
+})
+
 
 export default MemberTrainerDetail;

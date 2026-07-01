@@ -144,7 +144,7 @@ const MemberHome = ({ navigation }: any) => {
 
                 <TouchableOpacity
                     style={styles.functionCard}
-                    // onPress={() => navigation.navigate("BookingPage")}
+                    onPress={() => navigation.navigate("MemberBooking")}
                 >
                     <Ionicons name="calendar-outline" size={26} color="#40A9FF" />
                     <Text style={styles.functionText}>Đặt lịch</Text>

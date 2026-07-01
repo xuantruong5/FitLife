@@ -384,10 +384,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: hp(1.5),
     },
-
-
-
-
     weekText: {
         marginLeft: wp(2),
         fontSize: wp(3),
