@@ -1,30 +1,115 @@
-import React, { useState } from "react";
-import {Alert,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from "react-native";
+
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable, Modal, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {widthPercentageToDP as wp,heightPercentageToDP as hp,} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp, } from "react-native-responsive-screen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import DatePicker from "react-native-date-picker";
+import apiFitlife from "../../general/api";
 
 const MemberEditProfile = ({ navigation }: any) => {
-    const [fullName, setFullName] = useState("Nguyễn Văn An");
-    const [email, setEmail] = useState("an.nguyen@gmail.com");
-    const [phone, setPhone] = useState("0901 234 567");
-    const [birthday, setBirthday] = useState("01/01/2004");
-    const [gender, setGender] = useState("Nam");
-    const [address, setAddress] = useState("Đà Nẵng");
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [birthday, setBirthday] = useState("");
+    const [gender, setGender] = useState("");
+    const [address, setAddress] = useState("");
 
-    const handleSave = () => {
-        if (!fullName || !phone || !birthday) {
-            Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin bắt buộc");
-            return;
-        }
+    // lịch sinh nhật 
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+    const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
 
-        Alert.alert("Thành công", "Cập nhật hồ sơ thành công", [
-            {
-                text: "OK",
-                onPress: () => navigation.goBack(),
-            },
-        ]);
+        return `${year}-${month}-${day}`;
     };
+
+
+
+    // lấy token 
+    const [user, setUser] = useState<any>(null);
+
+
+
+
+
+    // kéo api lấy các tỉnh thành 
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [showProvince, setShowProvince] = useState(false);
+
+
+    const handleSave = async () => {
+        try {
+            const response = await apiFitlife.post("/member/change-profile", {
+
+                name: fullName,
+                phone: phone,
+                date_of_birth: birthday,
+                gender: gender === "Nam" ? 1 : 0,
+                address: address,
+            });
+
+            await AsyncStorage.setItem(
+                "user",
+                JSON.stringify(response.data.data)
+            );
+
+            Alert.alert("Thành công", response.data.message, [
+                {
+                    text: "OK",
+                    onPress: () => navigation.goBack(),
+                },
+            ]);
+        } catch (error: any) {
+            console.log(error);
+
+            Alert.alert(
+                "Lỗi",
+                error?.data?.message || "Không thể cập nhật thông tin"
+            );
+        }
+    };
+    useEffect(() => {
+        const fetchUser = async () => {
+            const storedUser = await AsyncStorage.getItem("user");
+            if (storedUser) {
+                const data = JSON.parse(storedUser);
+                setUser(data);
+
+                setFullName(data.name ?? "");
+                setEmail(data.email ?? "");
+                setPhone(data.phone ?? "");
+                setBirthday((data.date_of_birth ?? "").replace(/\//g, "-"));
+                console.log("date_of_birth từ API:", data.date_of_birth);
+                setGender(data.gender == 1 ? "Nam" : "Nữ");
+                setAddress(data.address ?? "");
+
+
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+
+    // kéo api tỉnh thành 
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            try {
+                const response = await fetch("https://provinces.open-api.vn/api/p/");
+                const data = await response.json();
+                setProvinces(data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchProvinces();
+    }, []);
+
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -47,15 +132,15 @@ const MemberEditProfile = ({ navigation }: any) => {
 
                 <View style={styles.avatarSection}>
                     <View style={styles.avatarBox}>
-                        <Text style={styles.avatarText}>AN</Text>
+                        <Text style={styles.avatarText}>{user?.name?.trim().split(" ").pop() || "U"}</Text>
 
                         <TouchableOpacity style={styles.cameraBtn}>
                             <Ionicons name="camera-outline" size={16} color="#FFFFFF" />
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.nameText}>{fullName}</Text>
-                    <Text style={styles.emailText}>{email}</Text>
+                    <Text style={styles.nameText}>{user?.name}</Text>
+                    <Text style={styles.emailText}>{user?.email}</Text>
                 </View>
 
                 <View style={styles.formCard}>
@@ -105,17 +190,24 @@ const MemberEditProfile = ({ navigation }: any) => {
                     </View>
 
                     <Text style={styles.label}>Ngày sinh</Text>
-                    <View style={styles.inputBox}>
-                        <Ionicons name="calendar-outline" size={20} color="#A7AFBF" />
+                    <Pressable
+                        style={styles.inputBox}
+                        onPress={() => setOpenDatePicker(true)}
+                    >
+                        <Ionicons
+                            name="calendar-outline"
+                            size={20}
+                            color="#A7AFBF"
+                        />
 
                         <TextInput
-                            placeholder="dd/mm/yyyy"
-                            placeholderTextColor="#A7AFBF"
                             style={styles.input}
                             value={birthday}
-                            onChangeText={setBirthday}
+                            editable={false}
+                            placeholder="dd/mm/yyyy"
+                            pointerEvents="none"
                         />
-                    </View>
+                    </Pressable>
 
                     <Text style={styles.label}>Giới tính</Text>
                     <View style={styles.genderRow}>
@@ -165,17 +257,27 @@ const MemberEditProfile = ({ navigation }: any) => {
                     </View>
 
                     <Text style={styles.label}>Địa chỉ</Text>
-                    <View style={styles.inputBox}>
-                        <Ionicons name="location-outline" size={20} color="#A7AFBF" />
-
-                        <TextInput
-                            placeholder="Nhập địa chỉ"
-                            placeholderTextColor="#A7AFBF"
-                            style={styles.input}
-                            value={address}
-                            onChangeText={setAddress}
+                    <Pressable
+                        style={styles.inputBox}
+                        onPress={() => setShowProvince(true)}
+                    >
+                        <Ionicons
+                            name="location-outline"
+                            size={20}
+                            color="#A7AFBF"
                         />
-                    </View>
+
+                        <Text
+                            style={[
+                                styles.input,
+                                {
+                                    color: address ? "#1E293B" : "#A7AFBF",
+                                },
+                            ]}
+                        >
+                            {address || "Chọn tỉnh/thành"}
+                        </Text>
+                    </Pressable>
                 </View>
 
                 <View style={styles.infoCard}>
@@ -208,6 +310,47 @@ const MemberEditProfile = ({ navigation }: any) => {
                     <Text style={styles.saveText}>Lưu thay đổi</Text>
                 </TouchableOpacity>
             </ScrollView>
+            <DatePicker modal open={openDatePicker}
+                date={birthday ? new Date(birthday) : new Date()}
+                mode="date"
+                title="Chọn ngày sinh"
+                confirmText="Chọn"
+                cancelText="Hủy"
+                maximumDate={new Date()}
+                onConfirm={(date) => {
+                    setOpenDatePicker(false);
+                    setBirthday(formatDate(date));
+                }}
+                onCancel={() => {
+                    setOpenDatePicker(false);
+                }}
+            />
+            <Modal
+                visible={showProvince}
+                animationType="slide"
+            >
+                <SafeAreaView style={{ flex: 1 }}>
+                    <FlatList
+                        data={provinces}
+                        keyExtractor={(item) => item.code.toString()}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={{
+                                    padding: 18,
+                                    borderBottomWidth: 1,
+                                    borderColor: "#eee",
+                                }}
+                                onPress={() => {
+                                    setAddress(item.name);
+                                    setShowProvince(false);
+                                }}
+                            >
+                                <Text>{item.name}</Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                </SafeAreaView>
+            </Modal>
         </SafeAreaView>
     );
 };
