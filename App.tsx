@@ -35,6 +35,9 @@ import MemberPackage from "./src/pages/Member/MemberPackage";
 import MemberBooking from "./src/pages/Member/MemberBooking";
 import selectPackage from "./src/pages/Member/SelectPackage";
 import selecttrainer from "./src/pages/Member/SelectTrainer";
+import confirmBooking from "./src/pages/Member/ConfirmBooking";
+import payment from "./src/pages/Member/Payment";
+import BookingSuccess from "./src/pages/Member/BookingSuccess";
 
 
 
@@ -125,7 +128,7 @@ function MemberTabs() {
         fontWeight: "bold"
       }
     })}>
-      <Tab.Screen name="Home" component={MemberHome} />
+      <Tab.Screen name= "Home" component={MemberHome} />
       <Tab.Screen name="Trainer" component={MemberTrainer} />
       {/* <Tab.Screen name="Progress" component={Progress} /> */}
       <Tab.Screen name="Profile" component={MemberProfile} />
@@ -190,7 +193,9 @@ const App = () => {
         <Stack.Screen name="MemberBooking" component={MemberBooking}/>
         <Stack.Screen name="selectPackage" component={selectPackage} /> 
         <Stack.Screen name="selecttrainer" component={selecttrainer}/>
-        
+        <Stack.Screen name="confirmBooking" component={confirmBooking}/>
+        <Stack.Screen name="payment" component={payment}/>
+        <Stack.Screen name="BookingSuccess" component={BookingSuccess}/>       
         <Stack.Screen name="Test" component={Test} />
         
 

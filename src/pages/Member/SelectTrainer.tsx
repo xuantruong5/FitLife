@@ -122,7 +122,7 @@ const selecttrainer = ({ navigation }: any) => {
                 </View>
             </View>
             {trainers.map((item) => (
-                <TouchableOpacity key={item.id} style={styles.card}>
+                <TouchableOpacity key={item.id} style={styles.card} onPress={() => navigation.navigate("confirmBooking")} >
 
                     <View style={styles.topRow}>
 
