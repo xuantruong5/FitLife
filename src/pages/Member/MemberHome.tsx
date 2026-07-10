@@ -120,7 +120,7 @@ const MemberHome = ({ navigation }: any) => {
 
                 <TouchableOpacity
                     style={styles.functionCard}
-                    onPress={() => navigation.navigate("MemberNote")}
+                    onPress={() => navigation.navigate("MemberTrainerNotes")}
                 >
                     <Ionicons name="document-text-outline" size={26} color="#40A9FF" />
                     <Text style={styles.functionText}>Ghi chú</Text>

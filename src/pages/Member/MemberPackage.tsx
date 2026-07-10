@@ -5,9 +5,31 @@ import LinearGradient from "react-native-linear-gradient";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import apiFitlife from "../../general/api";
 
 const MemberPackage = ({ navigation }: any) => {
+    const [user, setUser] = useState<any>(null);
+    const [memberPackage, setMemberPackage] = useState<any>(null);
+    const [history, setHistory] = useState<any[]>([]);
     const [tab, setTab] = useState("detail");
+    const getMyPackage = async () => {
+        try {
+            const res = await apiFitlife.get("/member/my-package");
+            if (res.data.status) {
+                setHistory(res.data.data);
+                const activePackage = res.data.data.find(
+                    (item: any) => item.status === 1
+                );
+                setMemberPackage(activePackage);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    useEffect(() => {
+        getMyPackage();
+    }, []);
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -21,19 +43,23 @@ const MemberPackage = ({ navigation }: any) => {
 
                 <LinearGradient colors={["#56B7FF", "#8D6BFF"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
                     <View style={styles.statusRow}>
-                        <Text style={styles.smallWhite}>Gói đang hoạt động</Text>
+                        <Text style={styles.smallWhite}>Gói {memberPackage?.status_text}</Text>
                         <View style={styles.active}>
-                            <Text style={styles.activeText}>• HOẠT ĐỘNG</Text>
+                            <Text style={styles.activeText}>{memberPackage?.status_text}</Text>
                         </View>
                     </View>
-                    <Text style={styles.packageName}>Tiêu Chuẩn</Text>
+                    <Text style={styles.packageName}>{memberPackage?.package_name}</Text>
 
                     <View style={styles.middle}>
-                        <AnimatedCircularProgress size={80} width={7} fill={50} tintColor="#fff" backgroundColor="rgba(255,255,255,.25)" rotation={220} arcSweepAngle={280}>
+                        <AnimatedCircularProgress size={80} width={7} fill={memberPackage ? (memberPackage.used_sessions / memberPackage.total_sessions) * 100 : 0} tintColor="#fff" backgroundColor="rgba(255,255,255,.25)" rotation={220} arcSweepAngle={280}>
                             {() => {
                                 return (
                                     <View>
-                                        <Text style={styles.circleNumber}>8</Text>
+                                        <Text style={styles.circleNumber}>
+                                            {memberPackage
+                                                ? memberPackage.total_sessions - memberPackage.used_sessions
+                                                : 0}
+                                        </Text>
                                         <Text style={styles.circleText}>còn lại</Text>
                                     </View>
                                 )
@@ -44,8 +70,12 @@ const MemberPackage = ({ navigation }: any) => {
                             <View style={styles.progress}>
                                 <View style={styles.progressFill} />
                             </View>
-                            <Text style={styles.used}>8/16 buổi đã dùng</Text>
-                            <Text style={styles.expire}>Hết hạn: 02/07/2026</Text>
+                            <Text style={styles.used}>
+                                {memberPackage?.used_sessions}/{memberPackage?.total_sessions} buổi đã dùng
+                            </Text>
+                            <Text style={styles.expire}>
+                                Hết hạn: {memberPackage?.end_date}
+                            </Text>
                         </View>
                     </View>
                     <View style={styles.tags}>
@@ -90,95 +120,99 @@ const MemberPackage = ({ navigation }: any) => {
                     <View style={styles.detailCard}>
                         <View style={styles.row}>
                             <Text style={styles.left}>Tên gói</Text>
-                            <Text style={styles.right}>Tiêu Chuẩn</Text>
+                            <Text style={styles.right}>
+                                {memberPackage?.package_name}
+                            </Text>
                         </View>
 
                         <View style={styles.row}>
                             <Text style={styles.left}>Ngày bắt đầu</Text>
-                            <Text style={styles.right}>01/06/2026</Text>
+                            <Text style={styles.right}>
+                                {memberPackage?.start_date}
+                            </Text>
                         </View>
 
                         <View style={styles.row}>
                             <Text style={styles.left}>Ngày hết hạn</Text>
-                            <Text style={styles.right}>02/07/2026</Text>
+                            <Text style={styles.right}>
+                                {memberPackage?.end_date}
+                            </Text>
                         </View>
 
                         <View style={styles.row}>
                             <Text style={styles.left}>Tổng buổi</Text>
-                            <Text style={styles.right}>16 buổi</Text>
+                            <Text style={styles.right}>
+                                {memberPackage?.total_sessions} buổi
+                            </Text>
                         </View>
 
                         <View style={styles.row}>
                             <Text style={styles.left}>Còn lại</Text>
                             <Text style={[styles.right, { color: "#4DA5FF" }]}>
-                                8 buổi
+                                {memberPackage
+                                    ? memberPackage.total_sessions - memberPackage.used_sessions
+                                    : 0} buổi
                             </Text>
                         </View>
 
                         <View style={styles.row}>
                             <Text style={styles.left}>Hỗ trợ PT</Text>
                             <Text style={[styles.right, { color: "#4DA5FF" }]}>
-                                ✓ 4 buổi/tháng
+                                ✓ {memberPackage?.pt_sessions} buổi/tháng
                             </Text>
                         </View>
                     </View>
                 ) : (
                     <>
-                        <View style={styles.history}>
-                            {/* Bên trái */}
-                            <View style={{ flex: 1 }}>
-                                <View style={styles.titleRow}>
-                                    <Text style={styles.historyTitle}>Gói Tiêu Chuẩn</Text>
+                        {history.map((item: any) => (
+                            <View key={item.id} style={styles.history}>
+                              
+                                <View style={{ flex: 1 }}>
+                                    <View style={styles.titleRow}>
+                                        <Text style={styles.historyTitle}>
+                                            {item.package_name}
+                                        </Text>
 
-                                    <View style={styles.statusActive}>
-                                        <Text style={styles.statusText}>ĐANG DÙNG</Text>
+                                        <View
+                                            style={
+                                                item.status === 1
+                                                    ? styles.statusActive
+                                                    : styles.statusActive2
+                                            }
+                                        >
+                                            <Text
+                                                style={
+                                                    item.status === 1
+                                                        ? styles.statusText
+                                                        : styles.statusText2
+                                                }
+                                            >
+                                                {item.status_text}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    <Text style={styles.historyDate}>
+                                        {item.start_date} - {item.end_date}
+                                    </Text>
+
+                                   
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.price}>
+                                            {Number(item.price).toLocaleString()}đ
+                                        </Text>
+
+                                        <Text style={styles.session}>
+                                            {item.total_sessions} buổi
+                                        </Text>
                                     </View>
                                 </View>
 
-                                <Text style={styles.historyDate}>
-                                    01/06/2026 - 02/07/2026
-                                </Text>
-
-                                {/* Giá và số buổi nằm dưới ngày */}
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.price}>900.000đ</Text>
-                                    <Text style={styles.session}>16 buổi</Text>
-                                </View>
+                                <TouchableOpacity style={styles.renewBtn}>
+                                    <Text style={styles.renewText}>Gia hạn</Text>
+                                </TouchableOpacity>
                             </View>
-
-                            {/* Nút bên phải */}
-                            <TouchableOpacity style={styles.renewBtn}>
-                                <Text style={styles.renewText}>Gia hạn</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.history}>
-                            {/* Bên trái */}
-                            <View style={{ flex: 1 }}>
-                                <View style={styles.titleRow}>
-                                    <Text style={styles.historyTitle}>Gói Tiêu Chuẩn</Text>
-
-                                    <View style={styles.statusActive2}>
-                                        <Text style={styles.statusText2}>Hết Hạn </Text>
-                                    </View>
-                                </View>
-
-                                <Text style={styles.historyDate}>
-                                    01/06/2026 - 02/07/2026
-                                </Text>
-
-                                {/* Giá và số buổi nằm dưới ngày */}
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.price}>900.000đ</Text>
-                                    <Text style={styles.session}>16 buổi</Text>
-                                </View>
-                            </View>
-
-                            {/* Nút bên phải */}
-                            <TouchableOpacity style={styles.renewBtn}>
-                                <Text style={styles.renewText}>Gia hạn</Text>
-                            </TouchableOpacity>
-                        </View>
+                        ))}
                     </>
                 )}
 
@@ -495,12 +529,12 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: "700",
     },
-      statusText2: {
+    statusText2: {
         color: "#F8F9FA",
         fontSize: 12,
         fontWeight: "700",
     },
-    
+
 
     statusExpire: {
         backgroundColor: "#F3F4F6",
