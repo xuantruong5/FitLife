@@ -19,7 +19,6 @@ import MemberHome from "./src/pages/Member/MemberHome";
 import MemberProgress from "./src/pages/Member/MemberProgress";
 import MemberTrainer from "./src/pages/Member/MemberTrainer";
 import MemberProfile from "./src/pages/Member/MemberProfile";
-import MemberNote from "./src/pages/Member/MemberNotes";
 import MemberTrainerDetail from "./src/pages/Member/MemberTrainerDetail";
 import MemberLogin from "./src/pages/Member/MemberLogin";
 import MemberForgotPassword from "./src/pages/Member/MemberForgotPassword";
@@ -38,6 +37,9 @@ import selecttrainer from "./src/pages/Member/SelectTrainer";
 import confirmBooking from "./src/pages/Member/ConfirmBooking";
 import payment from "./src/pages/Member/Payment";
 import BookingSuccess from "./src/pages/Member/BookingSuccess";
+import MemberSchedule from "./src/pages/Member/MemberSchedule";
+import ScheduleDetail from "./src/pages/Member/ScheduleDetail";
+import MemberTrainerNotes from "./src/pages/Member/MemberTrainerNotes";
 
 
 
@@ -109,7 +111,7 @@ function MemberTabs() {
         let name_icon = "";
         if (route.name === "Home") name_icon = focused ? "home" : "home-outline";
         else if (route.name === "Trainer") name_icon = focused ? "people-sharp" : "people-outline";
-        else if (route.name === "ScanQR") name_icon = focused ? "scan-circle" : "scan";
+        else if (route.name === "Calendar") name_icon = focused ? "calendar" : "calendar-outline";
         else if (route.name === "ChatBot") name_icon = focused ? "chatbubbles" : "chatbubbles-outline";
         else if (route.name === "Profile") name_icon = focused ? "person-circle-sharp" : "person-outline";
         return (
@@ -130,7 +132,7 @@ function MemberTabs() {
     })}>
       <Tab.Screen name= "Home" component={MemberHome} />
       <Tab.Screen name="Trainer" component={MemberTrainer} />
-      {/* <Tab.Screen name="Progress" component={Progress} /> */}
+      <Tab.Screen name="Calendar" component={MemberSchedule} />
       <Tab.Screen name="Profile" component={MemberProfile} />
     </Tab.Navigator>
   );
@@ -179,7 +181,6 @@ const App = () => {
         <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
         <Stack.Screen name="MemberProgress" component={MemberProgress} />
-        <Stack.Screen name="MemberNote" component={MemberNote} />
         <Stack.Screen name="MemberTrainerDetail" component={MemberTrainerDetail} />
         <Stack.Screen name="MemberLogin" component={MemberLogin} />
         <Stack.Screen name="MemberForgotPassword" component={MemberForgotPassword} />
@@ -195,7 +196,9 @@ const App = () => {
         <Stack.Screen name="selecttrainer" component={selecttrainer}/>
         <Stack.Screen name="confirmBooking" component={confirmBooking}/>
         <Stack.Screen name="payment" component={payment}/>
-        <Stack.Screen name="BookingSuccess" component={BookingSuccess}/>       
+        <Stack.Screen name="BookingSuccess" component={BookingSuccess}/>
+        <Stack.Screen name="ScheduleDetail" component={ScheduleDetail}/>
+        <Stack.Screen name="MemberTrainerNotes" component={MemberTrainerNotes}/>
         <Stack.Screen name="Test" component={Test} />
         
 
