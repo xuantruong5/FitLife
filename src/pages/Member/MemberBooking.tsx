@@ -1,6 +1,8 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import apiFitlife from "../../general/api";
+import { useEffect, useState } from "react";
 
 const MemberBooking = ({ navigation }: any) => {
     const trainers = [
@@ -31,8 +33,24 @@ const MemberBooking = ({ navigation }: any) => {
                 uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKM3z8LCH2aqRXKklcHtyXOA8NtYnKhegclYmvZigfqQ&s=10",
             },
         },
-        
+
     ];
+    const [titles, setTitles] = useState<any[]>([]);
+    const getTitles = async () => {
+        try {
+            const res = await apiFitlife.get("/member/title");
+
+            if (res.data.status) {
+                setTitles(res.data.data);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    useEffect(() => {
+        getTitles();
+    }, []);
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -84,25 +102,23 @@ const MemberBooking = ({ navigation }: any) => {
             <Text style={styles.sectionTitle}>Chọn loại bài tập</Text>
 
             <View style={styles.grid}>
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("selectPackage")}>
-                    <Ionicons name="flame-outline" size={30} color="#4EA5FF" />
-                    <Text style={styles.cardText}>HIIT Cardio</Text>
-                </TouchableOpacity>
+                {titles.map((item) => (
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.card}
+                        onPress={() =>
+                            navigation.navigate("selectPackage", {
+                                scheduleId: item.id,
+                            })
+                        }
+                    >
+                        <Ionicons name="barbell" size={30} color="#4EA5FF" style={{ transform: [{ rotate: "120deg" }] }} />
 
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("selectPackage")}>
-                    <Ionicons name="body-outline" size={30} color="#2DD4BF" />
-                    <Text style={styles.cardText}>Yoga Flow</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("selectPackage")}>
-                    <Ionicons name="barbell" size={30} color="#FF9F43" style={{ transform: [{ rotate: '120deg' }], }} />
-                    <Text style={styles.cardText}>Strength Training</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("selectPackage")}>
-                    <Ionicons name="flash-outline" size={26} color="#FF6B6B" />
-                    <Text style={styles.cardText}>CrossFit</Text>
-                </TouchableOpacity>
+                        <Text style={styles.cardText}>
+                            {item.title}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
 
             <Text style={styles.sectionTitle}>
@@ -131,7 +147,7 @@ const MemberBooking = ({ navigation }: any) => {
                             <Text style={styles.bookText}>Đăng Ký</Text>
                         </TouchableOpacity>
 
-                        
+
 
                     </TouchableOpacity>
                 ))}

@@ -1,8 +1,26 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import apiFitlife from "../../general/api";
+import { useEffect, useState } from "react";
 
-const confirmBooking = ({ navigation }: any) => {
+const confirmBooking = ({ navigation, route }: any) => {
+    const { scheduleId } = route.params;
+    console.log("route.params =", route.params);
+console.log("scheduleId =", scheduleId);
+    const [detail, setDetail] = useState<any>(null);
+    const getDetail = async () => {
+        const res = await apiFitlife.get(`/member/schedule/${scheduleId}`);
+
+        if (res.data.status) {
+            setDetail(res.data.data);
+        }
+    };
+    useEffect(() => {
+        getDetail();
+    }, []);
+
+
     return (
         <View style={{ flex: 1, backgroundColor: "#F7F8FC" }}>
             <ScrollView style={styles.container}>
@@ -59,14 +77,16 @@ const confirmBooking = ({ navigation }: any) => {
 
                 <View style={styles.card}>
                     <View style={styles.trainerRow}>
-                        <View style={styles.avatar} />
+                        <Image source={{ uri: detail?.avatar }}style={styles.avatar}/>
                         <View style={{ flex: 1, marginLeft: 12 }}>
-                            <Text style={styles.trainerName}>Phạm Minh Tuấn</Text>
-                            <Text style={styles.trainerJob}>HIIT · Strength</Text>
+                            <Text style={styles.trainerName}>
+                                {detail?.trainer_name}
+                            </Text>
+                            <Text style={styles.trainerJob}>{detail?.title}</Text>
                             <View style={styles.ratingRow}>
                                 <Ionicons name="star" color="#FFC107" size={14} />
                                 <Text style={styles.rating}>4.9</Text>
-                                <Text style={styles.exp}>• 8 năm kinh nghiệm</Text>
+                                <Text style={styles.exp}>{detail?.experience}</Text> experience
                             </View>
                         </View>
 
@@ -83,37 +103,43 @@ const confirmBooking = ({ navigation }: any) => {
                     <View style={styles.infoRow}>
                         <View style={styles.leftRow}>
                             <Ionicons name="cube-outline" size={18} color="#F59E0B" />
-                            <Text style={styles.label}>Gói tập</Text>
+                            <Text style={styles.label}>Gói Tập</Text>
                         </View>
-                        <Text style={styles.blue}>Tiêu Chuẩn</Text>
+                        <Text style={styles.blue}> {detail?.package_name}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <View style={styles.leftRow}>
                             <Ionicons name="calendar-outline" size={18} color="#8B5CF6" />
                             <Text style={styles.label}>Ngày</Text>
                         </View>
-                        <Text style={styles.value}>Thứ 4, 25/06/2026</Text>
+                        <Text style={styles.value}>
+                            {detail?.date}
+                        </Text>
                     </View>
                     <View style={styles.infoRow}>
                         <View style={styles.leftRow}>
                             <Ionicons name="time-outline" size={18} color="#22C55E" />
                             <Text style={styles.label}>Giờ bắt đầu</Text>
                         </View>
-                        <Text style={styles.time}>08:00</Text>
+                        <Text style={styles.time}>
+                            {detail?.start_time.slice(0,5)}
+                        </Text>
                     </View>
                     <View style={styles.infoRow}>
                         <View style={styles.leftRow}>
                             <Ionicons name="hourglass-outline" size={18} color="#EF4444" />
                             <Text style={styles.label}>Thời lượng</Text>
                         </View>
-                        <Text style={styles.value}>60 phút</Text>
+                        <Text style={styles.value}> {detail?.duration} phút</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <View style={styles.leftRow}>
                             <Ionicons name="location-outline" size={18} color="#EC4899" />
                             <Text style={styles.label}>Địa điểm</Text>
                         </View>
-                        <Text style={styles.value}>FitTrack Pro - Tầng 2</Text>
+                        <Text style={styles.value}>
+                            {detail?.branch_name}
+                        </Text>
                     </View>
                 </View>
                 <View style={styles.costCard}>
@@ -121,7 +147,9 @@ const confirmBooking = ({ navigation }: any) => {
 
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>Phí buổi tập PT</Text>
-                        <Text style={styles.costValue}>150.000đ</Text>
+                        <Text style={styles.costValue}>
+                            {detail?.price.toLocaleString("vi-VN")}đ
+                        </Text>
                     </View>
 
                     <View style={styles.costRow}>
@@ -151,7 +179,9 @@ const confirmBooking = ({ navigation }: any) => {
                             <Text style={styles.include}>Đã bao gồm trong gói</Text>
                         </View>
 
-                        <Text style={styles.totalPrice}>0đ</Text>
+                        <Text style={styles.totalPrice}>
+                            {detail?.price.toLocaleString("vi-VN")}đ
+                        </Text>
                     </View>
                 </View>
             </ScrollView>

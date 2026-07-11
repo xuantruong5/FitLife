@@ -1,76 +1,41 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import apiFitlife from "../../general/api";
+import { useEffect, useState } from "react";
 
-const selecttrainer = ({ navigation }: any) => {
-    const trainers = [
-        {
-            id: 1,
-            name: "Trường xấu trai",
-            type: "Physical trainer",
-            age: 28,
-            address: "Villanur, Puducherry",
-            image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400",
-            skills: ["Tăng cơ - Giảm mỡ", "Tập gym tổng hợp", "Dinh dưỡng thể hình"],
-            days: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-            activeDays: ["T2", "T4", "T6", "CN"],
-            time: ["06:00 - 09:00", "17:00 - 21:00"],
-            favorite: false,
-        },
-        {
-            id: 2,
-            name: "Huy Đẹp trai",
-            type: "Cardio Workout",
-            age: 35,
-            address: "Anna nagar, Puducherry",
-            image: "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400",
-            skills: ["Cardio - Giảm mỡ", "HIIT - Đốt calo", "Sức bền & Dẻo dai"],
-            days: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-            activeDays: ["T3", "T5", "T7"],
-            time: ["07:00 - 10:00", "16:00 - 20:00"],
-            favorite: false,
-        },
-        {
-            id: 3,
-            name: "Khánh bé điều",
-            type: "Physical trainer",
-            age: 28,
-            address: "Villanur, Puducherry",
-            image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400",
-            skills: ["Tăng cơ - Sức mạnh", "Tập gym nâng cao", "Phục hồi chấn thương"],
-            days: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-            activeDays: ["T2", "T3", "T5", "T7"],
-            time: ["06:30 - 09:30", "17:30 - 21:30"],
-            favorite: false,
-        },
-        {
-            id: 4,
-            name: "Hùng chị đẹp",
-            type: "Cardio Workout",
-            age: 35,
-            address: "Anna nagar, Puducherry",
-            image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-            skills: ["Cardio - Giảm mỡ", "Tập luyện cơ bản", "Tư vấn sức khỏe"],
-            days: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-            activeDays: ["T2", "T4", "T6", "CN"],
-            time: ["06:00 - 08:30", "18:00 - 20:30"],
-            favorite: false,
-        },
-    ];
+const selecttrainer = ({ navigation, route }: any) => {
+    const { id } = route.params;
 
-    const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-    const getCurrentWeek = () => {
-        const today = new Date();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() + (today.getDay() === 0 ? -6 : 1 - today.getDay()));
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        return {
-            start: monday.toLocaleDateString("vi-VN"),
-            end: sunday.toLocaleDateString("vi-VN"),
-        };
+
+    const [trainers, setTrainers] = useState<any[]>([]);
+
+    const getTrainer = async () => {
+        try {
+            const res = await apiFitlife.get(`/member/package/${id}/trainers`);
+            if (res.data.status) {
+                setTrainers(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
-    const week = getCurrentWeek();
+    useEffect(() => {
+        getTrainer();
+    }, [id]);
+    const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    // const getCurrentWeek = () => {
+    //     const today = new Date();
+    //     const monday = new Date(today);
+    //     monday.setDate(today.getDate() + (today.getDay() === 0 ? -6 : 1 - today.getDay()));
+    //     const sunday = new Date(monday);
+    //     sunday.setDate(monday.getDate() + 6);
+    //     return {
+    //         start: monday.toLocaleDateString("vi-VN"),
+    //         end: sunday.toLocaleDateString("vi-VN"),
+    //     };
+    // };
+    // const week = getCurrentWeek();
 
     return (
         <ScrollView style={styles.container}>
@@ -122,17 +87,21 @@ const selecttrainer = ({ navigation }: any) => {
                 </View>
             </View>
             {trainers.map((item) => (
-                <TouchableOpacity key={item.id} style={styles.card} onPress={() => navigation.navigate("confirmBooking")} >
+                <TouchableOpacity key={item.id} style={styles.card} onPress={() => {
+                    navigation.navigate("confirmBooking", { scheduleId: item.id, });
+                }}>
 
                     <View style={styles.topRow}>
 
-                        <Image source={{ uri: item.image }} style={styles.avatar} />
+                        <Image source={{ uri: item.avatar }} style={styles.avatar} />
 
                         <View style={{ flex: 1, marginLeft: 12 }}>
-                            <Text style={styles.name}>{item.name}</Text>
+                            <Text style={styles.name}>
+                                {item.name}
+                            </Text>
 
                             <Text style={styles.subTitle}>
-                                {item.type} · Age {item.age}
+                                {item.date_of_birth}
                             </Text>
 
                             <View style={styles.locationRow}>
@@ -160,11 +129,13 @@ const selecttrainer = ({ navigation }: any) => {
                                 </Text>
                             </View>
 
-                            {item.skills.map((s, index) => (
-                                <Text key={index} style={styles.skill}>
-                                    ✓ {s}
-                                </Text>
-                            ))}
+                            {item.specialization
+                                ?.split(",")
+                                .map((skill: string, index: number) => (
+                                    <Text key={index} style={styles.skill}>
+                                        ✓ {skill.trim()}
+                                    </Text>
+                                ))}
 
                         </View>
 
@@ -178,13 +149,13 @@ const selecttrainer = ({ navigation }: any) => {
 
                             </View>
                             <Text style={styles.weekText}>
-                                Tuần: {week.start} - {week.end}
+                                Ngày tập: {item.date}
                             </Text>
 
                             <View style={styles.dayContainer}>
                                 {days.map((d) => (
-                                    <View key={d} style={[styles.dayBox, item.activeDays.includes(d) && styles.dayActive,]}>
-                                        <Text style={[styles.dayText, item.activeDays.includes(d) && styles.dayTextActive,]} >
+                                    <View key={d} style={[styles.dayBox, item.active_day === d && styles.dayActive,]}>
+                                        <Text style={[styles.dayText, item.active_day === d && styles.dayTextActive,]} >
                                             {d}
                                         </Text>
                                     </View>
@@ -194,8 +165,8 @@ const selecttrainer = ({ navigation }: any) => {
                             <View style={styles.timeRow}>
                                 <Ionicons name="time-outline" size={18} color="#1E90FF" />
                                 <View>
-                                    <Text style={styles.time}>{item.time[0]}</Text>
-                                    <Text style={styles.time}>{item.time[1]}</Text>
+                                    <Text style={styles.time}>{item.training_time}</Text>
+                                    {/* <Text style={styles.time}>{item.time[1]}</Text> */}
                                 </View>
                             </View>
 
@@ -203,7 +174,9 @@ const selecttrainer = ({ navigation }: any) => {
 
                     </View>
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.detailBtn} onPress={() => navigation.navigate("MemberTrainerDetail")}>
+                        <TouchableOpacity style={styles.detailBtn} onPress={() => navigation.navigate("MemberTrainerDetail", {
+                            trainer: item,
+                        })}>
                             <Text style={styles.detailText}>
                                 Xem chi tiết
                             </Text>

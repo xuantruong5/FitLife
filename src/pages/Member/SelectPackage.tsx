@@ -1,48 +1,29 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import apiFitlife from "../../general/api";
+import { useEffect, useState } from "react";
 
-const selectPackage = ({ navigation }: any) => {
-    const packages = [
-        {
-            name: "Cơ Bản",
-            price: "500.000",
-            badge: "",
-            recommended: false,
-            features: [
-                "Tập tự do không giới hạn",
-                "Truy cập tất cả thiết bị",
-                "1 buổi tư vấn HLV/tháng",
-                "App theo dõi tiến độ",
-            ],
-        },
-        {
-            name: "Tiêu Chuẩn",
-            price: "900.000",
-            badge: "Phổ biến nhất",
-            recommended: true,
-            features: [
-                "Tất cả gói Cơ Bản",
-                "4 buổi PT/tháng",
-                "Lịch tập cá nhân hóa",
-                "Dinh dưỡng cơ bản",
-                "Ghi chú từ HLV",
-            ],
-        },
-        {
-            name: "Cao Cấp",
-            price: "1.500.000",
-            badge: "Premium",
-            recommended: false,
-            features: [
-                "Tất cả gói Tiêu Chuẩn",
-                "PT không giới hạn",
-                "Tư vấn dinh dưỡng chuyên sâu",
-                "Check-in ưu tiên",
-                "Hỗ trợ 24/7",
-            ],
-        },
-    ];
+const selectPackage = ({ navigation, route }: any) => {
+    const { scheduleId } = route.params;
+    const [packages, setPackages] = useState<any[]>([]);
+
+    const getPackages = async () => {
+        try {
+            const res = await apiFitlife.get("/member/packages");
+
+            if (res.data.status) {
+                setPackages(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        getPackages();
+    }, []);
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -95,30 +76,55 @@ const selectPackage = ({ navigation }: any) => {
 
             <View style={{ marginTop: hp(2), paddingBottom: hp(4) }}>
                 {packages.map((item, index) => (
-                    <TouchableOpacity key={index} style={styles.packageCard} activeOpacity={0.8} onPress={() => navigation.navigate("selecttrainer")}>
+                    <TouchableOpacity key={item.id} style={styles.packageCard} activeOpacity={0.8} onPress={() => navigation.navigate("selecttrainer", { id: item.id, })}>
                         <View style={styles.packageHeader}>
                             <View style={{ flexDirection: "row", alignItems: "center" }}>
                                 <Text style={styles.packageName}>{item.name}</Text>
-                                {item.badge && (
-                                    <View style={[styles.badge, { backgroundColor: item.badge === "Phổ biến nhất" ? "#43B5FF" : "#A855F7", },]}>
-                                        <Text style={styles.badgeText}>{item.badge}</Text>
+                                {item.is_popular == 1 && (
+                                    <View style={[styles.badge, { backgroundColor: "#43B5FF" },]}>
+                                        <Text style={styles.badgeText}>
+                                            Phổ biến nhất
+                                        </Text>
                                     </View>
                                 )}
                             </View>
                         </View>
                         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-                            <Text style={[ styles.price, { color: index === 0 ? "#5cc683" : index === 1 ? "#56D7F2" : "#A855F7", }, ]} >
-                                {item.price}
+                            <Text style={[styles.price, { color: index === 0 ? "#5cc683" : index === 1 ? "#56D7F2" : "#A855F7", },]} >
+                                {Number(item.price).toLocaleString("vi-VN")}
                             </Text>
                             <Text style={styles.month}> đ/tháng</Text>
                         </View>
                         <View style={{ marginTop: hp(1.2) }}>
-                            {item.features.map((feature, i) => (
+                            {/* {item.features.map((feature, i) => (
                                 <View key={i} style={styles.featureRow}>
-                                    <Ionicons name="checkmark-circle" size={16} color="#6EE7B7"/>
+                                    <Ionicons name="checkmark-circle" size={16} color="#6EE7B7" />
                                     <Text style={styles.featureText}>{feature}</Text>
                                 </View>
-                            ))}
+                            ))} */}
+                            <View style={styles.featureRow}>
+                                <Ionicons
+                                    name="checkmark-circle"
+                                    size={16}
+                                    color="#6EE7B7"
+                                />
+                                <Text style={styles.featureText}>
+                                    {item.description}
+                                </Text>
+                            </View>
+
+                            <View style={styles.featureRow}>
+                                <Ionicons
+                                    name="time-outline"
+                                    size={16}
+                                    color="#56D7F2"
+                                />
+                                <Text style={styles.featureText}>
+                                    {item.duration_days} ngày
+                                </Text>
+                            </View>
+
+
                         </View>
 
                     </TouchableOpacity>
