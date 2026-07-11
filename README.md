@@ -1,5 +1,7 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
-
+<a href="https://hoduongquochuy278.github.io/FITLIFE-documents/" target="_blank">
+    <img src="https://img.shields.io/badge/Documentation-FITLIFE-blue?style=for-the-badge&logo=readthedocs" alt="FITLIFE Documentation">
+</a>
 # Getting Started
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
