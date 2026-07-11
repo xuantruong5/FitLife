@@ -1,99 +1,288 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<div align="center">
+
+<img src="https://img.shields.io/badge/React_Native-0.86-61DAFB?style=for-the-badge&logo=react&logoColor=white" />
+<img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+<img src="https://img.shields.io/badge/Node.js-≥22.11-339933?style=for-the-badge&logo=node.js&logoColor=white" />
+<img src="https://img.shields.io/badge/License-MIT-orange?style=for-the-badge" />
 <a href="https://hoduongquochuy278.github.io/FITLIFE-documents/" target="_blank">
-    <img src="https://img.shields.io/badge/Documentation-FITLIFE-blue?style=for-the-badge&logo=readthedocs" alt="FITLIFE Documentation">
+  <img src="https://img.shields.io/badge/📖_Project_Docs-Visit_Now-blue?style=for-the-badge" alt="Project Documentation" />
 </a>
-# Getting Started
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+# 🏋️ FITLiFE – Mobile App
 
-## Step 1: Start Metro
+**Ứng dụng quản lý phòng gym dành cho hội viên & huấn luyện viên**
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+*Xem lịch tập · Điểm danh · Đổi lịch · Theo dõi thu nhập*
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+</div>
 
-```sh
-# Using npm
+---
+
+## 📖 Mục lục
+
+- [Giới thiệu](#-giới-thiệu)
+- [Tính năng chính](#-tính-năng-chính)
+- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
+- [Yêu cầu môi trường](#-yêu-cầu-môi-trường)
+- [Cài đặt & Chạy thử](#-cài-đặt--chạy-thử)
+- [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
+- [Các thư viện sử dụng](#-các-thư-viện-sử-dụng)
+- [Đội ngũ phát triển](#-đội-ngũ-phát-triển)
+
+---
+
+## 🌟 Giới thiệu
+
+**FITLiFE Mobile** là ứng dụng di động được xây dựng bằng **React Native 0.86**, phục vụ hai nhóm người dùng chính trong hệ sinh thái FITLiFE:
+
+| Đối tượng | Mô tả |
+|-----------|-------|
+| 🧑‍💼 **Hội viên** | Xem & đăng ký lịch tập, theo dõi điểm danh, yêu cầu đổi lịch, đọc ghi chú từ HLV |
+| 🏃 **Huấn luyện viên** | Quản lý lịch dạy, điểm danh hội viên, ghi chú sức khỏe, xem bảng lương |
+
+Ứng dụng giao tiếp với **Backend Laravel** qua RESTful API và hỗ trợ đăng nhập thông qua **Google Sign-In**.
+
+---
+
+## ✨ Tính năng chính
+
+### 👤 Dành cho Hội viên
+- 🔑 Đăng nhập bằng **tài khoản** hoặc **Google**
+- 📋 Xem & đăng ký lịch tập
+- 🗓️ Xem lịch sử **điểm danh**
+- 🔁 Gửi yêu cầu **đổi lịch**
+- 📝 Đọc **ghi chú sức khỏe** từ huấn luyện viên
+- 👤 Quản lý **hồ sơ cá nhân**
+
+### 🏋️ Dành cho Huấn luyện viên
+- 📆 Tạo, sửa, xóa **lịch tập**
+- ✅ **Điểm danh** hội viên theo buổi
+- 📊 Duyệt / Từ chối yêu cầu **đổi lịch**
+- 📓 Viết **ghi chú sức khỏe** cho từng hội viên
+- 💰 Xem **bảng lương** cá nhân
+
+---
+
+## 🏗️ Kiến trúc hệ thống
+
+```
+
+│               FITLiFE Ecosystem                 
+│                                                 
+│  📱 FitLife (React Native)  
+│  🌐 WEB-FITLIFE (Vue 3)     
+│                                       
+│              ⬇ REST API (Sanctum)       
+│                                            
+│  🖥️  Be-FITLIFE (Laravel 12)
+│              ⬇                                
+│  🗄️  SQLite / MySQL Database                   
+
+```
+
+| Thành phần | Công nghệ | Vai trò |
+|---|---|---|
+| `FitLife` | React Native 0.86 + TypeScript | Ứng dụng di động |
+| `WEB-FITLIFE` | Vue 3 + Vite | Cổng admin web |
+| `Be-FITLIFE` | Laravel 12 + Sanctum | Backend API |
+
+---
+
+## 🔧 Yêu cầu môi trường
+
+Trước khi bắt đầu, hãy đảm bảo đã cài đặt đầy đủ:
+
+| Công cụ | Phiên bản tối thiểu | Ghi chú |
+|---|---|---|
+| **Node.js** | ≥ 22.11.0 | [nodejs.org](https://nodejs.org) |
+| **npm** | ≥ 10 | Đi kèm Node.js |
+| **Java JDK** | 17 | Bắt buộc cho Android |
+| **Android Studio** | Flamingo+ | SDK + Emulator |
+| **Xcode** | 15+ | Chỉ dành cho macOS/iOS |
+| **CocoaPods** | ≥ 1.15 | Chỉ dành cho iOS |
+
+> ⚙️ Tham khảo hướng dẫn thiết lập đầy đủ tại: [React Native – Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment)
+
+---
+
+## 🚀 Cài đặt & Chạy thử
+
+### 1. Clone dự án
+
+```bash
+git clone <repository-url>
+cd FitLife
+```
+
+### 2. Cài đặt dependencies
+
+```bash
+npm install
+```
+
+### 3. Cấu hình API
+
+Mở file `src/general/` (hoặc file config tương ứng) và cập nhật địa chỉ API:
+
+```ts
+export const BASE_URL = 'http://<your-local-ip>:8000/api';
+```
+
+> 💡 Khi chạy emulator Android, dùng `10.0.2.2` thay vì `localhost`.
+
+---
+
+### 4. Khởi động Metro Bundler
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### 5. Chạy ứng dụng
 
-### Android
+#### 🤖 Android
 
-```sh
-# Using npm
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+#### 🍎 iOS (chỉ macOS)
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Lần đầu tiên hoặc sau khi cập nhật native deps:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+```bash
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Chạy ứng dụng:
 
-```sh
-# Using npm
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### 🔄 Hot Reload
 
-## Step 3: Modify your app
+Sau khi app đang chạy, bạn có thể reload nhanh:
 
-Now that you have successfully run the app, let's make changes!
+| Nền tảng | Thao tác |
+|---|---|
+| Android | Nhấn `R` hai lần, hoặc `Ctrl+M` → **Reload** |
+| iOS | Nhấn `R` trong Simulator |
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## 📁 Cấu trúc thư mục
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```
+FitLife/
+├── android/                  # Native Android project
+├── ios/                      # Native iOS project
+├── src/
+│   ├── assets/               # Hình ảnh, fonts, icons
+│   ├── general/              # Config API, constants
+│   └── pages/                # Màn hình ứng dụng
+│       ├── login.tsx         # Đăng nhập
+│       ├── HomePage.tsx      # Trang chủ
+│       ├── CalendarPage.tsx  # Lịch tập
+│       ├── AttendancePage.tsx# Điểm danh
+│       ├── MembersPage.tsx   # Danh sách hội viên (HLV)
+│       ├── MemberDetails.tsx # Chi tiết hội viên
+│       ├── ProgressPage.tsx  # Tiến trình tập luyện
+│       ├── TrainerIncome.tsx # Thu nhập HLV
+│       ├── CreateSchedule.tsx# Tạo lịch tập
+│       ├── ChangeSchedule.tsx# Đổi lịch
+│       └── Profile.tsx       # Hồ sơ cá nhân
+├── App.tsx                   # Root component & Navigation
+├── index.js                  # Entry point
+├── package.json
+└── tsconfig.json
+```
 
-## Congratulations! :tada:
+---
 
-You've successfully run and modified your React Native App. :partying_face:
+## 📦 Các thư viện sử dụng
 
-### Now what?
+### Navigation
+| Thư viện | Mô tả |
+|---|---|
+| `@react-navigation/native` | Core navigation |
+| `@react-navigation/native-stack` | Stack navigator |
+| `@react-navigation/bottom-tabs` | Tab bar dưới |
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+### UI & Hiệu ứng
+| Thư viện | Mô tả |
+|---|---|
+| `react-native-linear-gradient` | Gradient background |
+| `react-native-reanimated` | Animation mượt |
+| `react-native-gesture-handler` | Xử lý gesture |
+| `react-native-vector-icons` | Bộ icon đa dạng |
+| `lucide-react-native` | Icon hiện đại |
+| `react-native-svg` | SVG support |
 
-# Troubleshooting
+### Dữ liệu & Biểu đồ
+| Thư viện | Mô tả |
+|---|---|
+| `axios` | HTTP client gọi API |
+| `@react-native-async-storage/async-storage` | Lưu token local |
+| `react-native-chart-kit` | Biểu đồ thống kê |
+| `react-native-circular-progress` | Progress vòng tròn |
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Form & Picker
+| Thư viện | Mô tả |
+|---|---|
+| `@react-native-picker/picker` | Dropdown picker |
+| `react-native-dropdown-picker` | Dropdown nâng cao |
+| `react-native-element-dropdown` | Dropdown tùy chỉnh |
+| `@react-native-community/datetimepicker` | Chọn ngày/giờ |
+| `react-native-date-picker` | Date picker |
 
-# Learn More
+### Xác thực
+| Thư viện | Mô tả |
+|---|---|
+| `@react-native-google-signin/google-signin` | Đăng nhập Google |
 
-To learn more about React Native, take a look at the following resources:
+---
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 🧪 Kiểm thử
+
+```bash
+# Chạy unit tests
+npm test
+
+# Kiểm tra lint
+npm run lint
+```
+
+---
+
+## 👥 Đội ngũ phát triển
+
+Dự án được phát triển bởi nhóm sinh viên trong khuôn khổ môn học tại trường đại học.
+
+| Thành viên | Vai trò |
+|---|---|
+| Hồ Dương Quốc Huy | Team Lead / Mobile Dev |
+| *(Thành viên 2)* | Backend Dev |
+| *(Thành viên 3)* | Frontend / Admin Web |
+| *(Thành viên 4)* | Mobile Dev |
+| *(Thành viên 5)* | Database / DevOps |
+| *(Thành viên 6)* | QA / Documentation |
+
+---
+
+## 📄 Giấy phép
+
+Dự án được phân phối dưới giấy phép **MIT**. Xem file [LICENSE](./LICENSE) để biết thêm chi tiết.
+
+---
+
+<div align="center">
+
+Made with ❤️ by the **FITLiFE Team** · 2026
+
+</div>
