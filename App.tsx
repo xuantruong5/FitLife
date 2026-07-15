@@ -168,7 +168,7 @@ const App = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="BookingSuccess"
+        initialRouteName="OnLoading"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="MainTabs" component={MainTabs} />

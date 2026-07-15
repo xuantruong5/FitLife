@@ -1,14 +1,30 @@
-import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from "react-native"
+import { useEffect, useMemo, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import apiFitlife from "../general/api";
 
-const ChangeSchedule = ({ navigation }: any) => {
+const ChangeSchedule = ({ navigation, route }: any) => {
+    const { schedule } = route.params;
+    const [trainer, setTrainer] = useState<any>(null); // lay ten tu token 
 
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState("");
+    const [selectedEndTime, setSelectedEndTime] = useState("");
     const [reason, setReason] = useState("");
+    const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    };
+
+
+
+
 
     const changeWeek = (direction: number) => {
         const newDate = new Date(selectedDate);
@@ -52,6 +68,79 @@ const ChangeSchedule = ({ navigation }: any) => {
     ];
 
 
+    const handleChangeSchedule = async () => {
+
+        if (!selectedTime) {
+            Alert.alert("Vui lòng chọn giờ mới");
+            return;
+        }
+
+        if (!reason) {
+            Alert.alert("Vui lòng nhập lý do");
+            return;
+        }
+
+
+        try {
+
+            const payload = {
+                old_schedule_id: schedule.id,
+
+                date: formatDate(selectedDate),
+
+                start_time: selectedTime + ":00",
+
+                end_time:
+                    `${String(parseInt(selectedTime) + 1).padStart(2, "0")}:00:00`,
+
+                reason: reason
+            };
+
+
+            console.log("DATA SEND:", payload);
+
+
+            const res = await apiFitlife.post(
+                "/trainer/change-schedule",
+                payload
+            );
+
+
+            if (res.data.success) {
+
+                Alert.alert("Gửi yêu cầu đổi lịch thành công");
+
+                navigation.goBack();
+
+            }
+
+
+        } catch (error: any) {
+
+            console.log(
+                error.response?.data || error
+            );
+
+            Alert.alert(
+                error.response?.data?.message ||
+                "Đổi lịch thất bại"
+            );
+
+        }
+
+    };
+    useEffect(() => {
+        const loadTrainer = async () => {
+            const data = await AsyncStorage.getItem("user");
+            if (data) {
+                const user = JSON.parse(data);
+                setTrainer(user);
+            }
+        };
+        loadTrainer();
+    }, []);
+
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -71,21 +160,23 @@ const ChangeSchedule = ({ navigation }: any) => {
                 <View style={styles.currentCard}>
                     <View style={styles.rowItem}>
                         <Ionicons name="person-outline" size={18} color="#60A5FA" />
-                        <Text style={styles.infoText}>Nguyễn Văn A</Text>
+                        <Text style={styles.infoText}>{trainer?.name}</Text>
 
                         <View style={styles.privateTag}>
-                            <Text style={styles.privateText}>Private 1-1</Text>
+                            <Text style={styles.privateText}>{schedule.title}</Text>
                         </View>
                     </View>
 
                     <View style={styles.rowItem}>
                         <Ionicons name="calendar-outline" size={18} color="#CBD5E1" />
-                        <Text style={styles.infoText}>Thứ 5, 25/06</Text>
+                        <Text style={styles.infoText}> {new Date(schedule.date).toLocaleDateString("vi-VN")}</Text>
                     </View>
 
                     <View style={styles.rowItem}>
                         <Ionicons name="time-outline" size={18} color="#CBD5E1" />
-                        <Text style={styles.infoText}>08:00 - 09:00</Text>
+                        <Text style={styles.infoText}>
+                            {schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)}
+                        </Text>
                     </View>
                 </View>
 
@@ -142,7 +233,7 @@ const ChangeSchedule = ({ navigation }: any) => {
                 </Text>
                 <View style={styles.timeContainer}>
                     {times.map((time) => (
-                        <TouchableOpacity key={time} style={[styles.timeBtn, selectedTime === time && styles.activeTime]} onPress={() => setSelectedTime(time)}>
+                        <TouchableOpacity key={time} style={[styles.timeBtn, selectedTime === time && styles.activeTime]} onPress={() =>  {setSelectedTime(time);}}>
                             <Text style={[styles.timeText, selectedTime === time && { color: "#fff" }]}>
                                 {time}
                             </Text>
@@ -155,7 +246,7 @@ const ChangeSchedule = ({ navigation }: any) => {
                 </Text>
                 <TextInput style={styles.input} multiline placeholder="Nhập lý do đổi lịch..." value={reason} onChangeText={setReason} />
 
-                <TouchableOpacity style={styles.submitBtn}>
+                <TouchableOpacity style={styles.submitBtn}  onPress={handleChangeSchedule}>
                     <Text style={styles.submitText}>
                         Gửi yêu cầu đổi lịch
                     </Text>

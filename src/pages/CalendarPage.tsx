@@ -1,13 +1,59 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import apiFitlife from "../general/api";
 
 
 const Calendar = ({ navigation }: any) => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [schedules, setSchedules] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    };
+    const getSchedules = async (date: Date) => {
+        setSchedules([]); // xóa dữ liệu cũ
+        try {
+            setLoading(true);
+
+            const token = await AsyncStorage.getItem("token");
+
+            const res = await apiFitlife.get(`/trainer/schedules?date=${formatDate(date)}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("Date:", formatDate(date));
+            console.log("Response:", res.data);
+
+            if (res.data.success) {
+                setSchedules(res.data.data);
+            } else {
+                setSchedules([]);
+            }
+        } catch (error: any) {
+            console.log(error.response?.data || error);
+            setSchedules([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        console.log("Current Date changed:", formatDate(currentDate));
+    getSchedules(currentDate);
+    }, [currentDate]);
+
+
 
     const [selectedDate, setSelectedDate] = useState(currentDate.toDateString());
     const [viewMode, setViewMode] = useState("week");
@@ -63,6 +109,8 @@ const Calendar = ({ navigation }: any) => {
         currentDate.getMonth() + 1,
         0
     ).getDate();
+
+    console.log("Schedules:", schedules.length);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -235,7 +283,7 @@ const Calendar = ({ navigation }: any) => {
                             </Text>
                         </View>
                     ))}
-                    <View style={[styles.eventCard, { top: 95, backgroundColor: "#2CCB8F" }]}>
+                    {/* <View style={[styles.eventCard, { top: 95, backgroundColor: "#2CCB8F" }]}>
                         <View>
                             <Text style={styles.eventTitle}>
                                 Dạy Private - Nguyễn Văn A
@@ -271,7 +319,37 @@ const Calendar = ({ navigation }: any) => {
                                 color="#FF9448"
                             />
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
+                    {schedules.map((item, index) => {
+                        const hour = parseInt(item.start_time.split(":")[0]);
+                        return (
+                            <View key={item.id} style={[ styles.eventCard, { top: (hour - 7) * 80 + 15, backgroundColor: "#2CCB8F", }, ]} >
+                                <View>
+                                    <Text style={styles.eventTitle}>
+                                        {item.title}
+                                    </Text>
+
+                                    <Text style={styles.eventTime}>
+                                         {item.start_time.substring(0, 5)} - {item.end_time.substring(0, 5)}
+                                    </Text>
+                                    <Text style={{ color: "#fff", fontSize: 11, marginTop: 2, }}>
+                                       {item.branch?.name}
+                                    </Text>
+                                    <Text style={{ color: "#fff", fontSize: 11, }} >
+                                        {item.room}
+                                    </Text>
+                                    
+                                </View>
+
+                                <TouchableOpacity
+                                    onPress={() =>navigation.navigate("ChangeSchedule", {schedule: item,}) } style={styles.changeButton}>
+                                    <Ionicons name="swap-horizontal-outline" size={20} color="#2CCB8F" />                                                                                                                                                              
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    })}
+
+
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -397,7 +475,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         left: 70,
         right: 20,
-        height: 60,
+        height: 80,
         borderRadius: 16,
         justifyContent: "space-between",
         paddingHorizontal: 15,
