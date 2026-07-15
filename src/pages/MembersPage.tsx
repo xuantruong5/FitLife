@@ -135,7 +135,7 @@ const MembersPage = ({ navigation }: any) => {
                                 </View>
                             </View>
 
-                            <TouchableOpacity onPress={() => navigation.navigate("Progress", { member: item,})} style={styles.arrowBtn}>
+                            <TouchableOpacity onPress={() => navigation.navigate("MemberAttendanceHistory", { member: item })} style={styles.arrowBtn}>
                                 <Ionicons name="chevron-forward" size={18} color="#fff" />
                             </TouchableOpacity>
                         </View>
