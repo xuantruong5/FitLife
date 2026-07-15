@@ -53,8 +53,8 @@ const BookingSuccess = ({ navigation }: any) => {
                     đầy năng lượng!
                 </Text>
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MemberHome")}>
-                <Text style={styles.buttonText}>Về lịch tập</Text>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MemberTabs")}>
+                <Text style={styles.buttonText}>Về Trang Chủ</Text>
             </TouchableOpacity>
         </ScrollView>
     )

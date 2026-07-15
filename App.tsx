@@ -40,6 +40,8 @@ import BookingSuccess from "./src/pages/Member/BookingSuccess";
 import MemberSchedule from "./src/pages/Member/MemberSchedule";
 import ScheduleDetail from "./src/pages/Member/ScheduleDetail";
 import MemberTrainerNotes from "./src/pages/Member/MemberTrainerNotes";
+import CurrentTrainer from "./src/pages/Member/CurrentTrainer";
+import MemberChangeSchedule from "./src/pages/Member/MemberChangeSchedule";
 
 
 
@@ -131,7 +133,7 @@ function MemberTabs() {
       }
     })}>
       <Tab.Screen name= "Home" component={MemberHome} />
-      <Tab.Screen name="Trainer" component={MemberTrainer} />
+      <Tab.Screen name="Trainer" component={CurrentTrainer} />
       <Tab.Screen name="Calendar" component={MemberSchedule} />
       <Tab.Screen name="Profile" component={MemberProfile} />
     </Tab.Navigator>
@@ -166,7 +168,7 @@ const App = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="OnLoading"
+        initialRouteName="BookingSuccess"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -199,6 +201,8 @@ const App = () => {
         <Stack.Screen name="BookingSuccess" component={BookingSuccess}/>
         <Stack.Screen name="ScheduleDetail" component={ScheduleDetail}/>
         <Stack.Screen name="MemberTrainerNotes" component={MemberTrainerNotes}/>
+        <Stack.Screen name="MemberTrainer" component={MemberTrainer}/>
+        <Stack.Screen name="MemberChangeSchedule" component={MemberChangeSchedule}/> 
         <Stack.Screen name="Test" component={Test} />
         
 

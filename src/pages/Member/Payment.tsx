@@ -1,10 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import apiFitlife from "../../general/api";
 
-const payment = ({ navigation }: any) => {
+const payment = ({ navigation, route }: any) => {
+    const { order } = route.params;
+    console.log(order);
     const [selected, setSelected] = useState(false);
+    useEffect(() => {
+        const timer = setInterval(async () => {
+            try {
+                const res = await apiFitlife.get( `/member/orders/check-payment/${order.order_code}`);
+                console.log("Trạng thái thanh toán:", res.data);
+                if (res.data.is_thanh_toan === 1) {
+                    clearInterval(timer);
+                    navigation.replace( "BookingSuccess", {order: order});
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }, 5000);
+        return () => {
+            clearInterval(timer);
+        }
+    }, []);
+
     return (
         <View style={{ flex: 1, backgroundColor: "#F7F8FC" }}>
             <ScrollView style={styles.container}>
@@ -79,15 +100,21 @@ const payment = ({ navigation }: any) => {
                 <View style={styles.costCard}>
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>Phí buổi PT</Text>
-                        <Text style={styles.costValue}>150.000đ</Text>
+                        <Text style={styles.costValue}>
+                            {Number(order?.subtotal ?? 0).toLocaleString("vi-VN")}đ
+                        </Text>
                     </View>
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>Khấu trừ gói Tiêu Chuẩn</Text>
-                        <Text style={[styles.costValue, { color: "#22C55E" }]}>-150.000đ </Text>
+                        <Text style={[styles.costValue, { color: "#22C55E" }]}>
+                            -0đ
+                        </Text>
                     </View>
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>Mã giảm giá</Text>
-                        <Text style={styles.costValue}>-0đ</Text>
+                        <Text style={styles.costValue}>
+                            -{Number(order?.discount ?? 0).toLocaleString("vi-VN")}đ
+                        </Text>
                     </View>
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>VAT (0%)</Text>
@@ -98,7 +125,7 @@ const payment = ({ navigation }: any) => {
                     <View style={styles.costRow}>
                         <Text style={styles.totalLabel}>Tổng cộng</Text>
                         <View style={{ alignItems: "flex-end" }}>
-                            <Text style={styles.totalValue}>0đ</Text>
+                            <Text style={styles.totalValue}> {Number(order?.total_amount ?? 0).toLocaleString("vi-VN")}đ</Text>
                             <Text style={styles.note}>
                                 Đã bao gồm trong gói tập
                             </Text>
@@ -107,13 +134,16 @@ const payment = ({ navigation }: any) => {
                 </View>
                 <View style={styles.qrCard}>
                     <Image
-                        source={require("../../assets/images/qr-code.jpg")} resizeMode="cover"  style={styles.qrImage} />
+                        source={{ uri: "https://img.vietqr.io/image/MB-0813559551-compact.png?amount=" + Number(order?.total_amount ?? 0) + "&addInfo=" + order.order_code + "&accountName=TRAN%20XUAN%20TRUONG" }}
+                        resizeMode="contain"
+                        style={styles.qrImage}
+                    />
                     <Text style={styles.qrText}>
                         Hoặc quét mã VietQR để thanh toán nhanh
                     </Text>
                 </View>
-                <TouchableOpacity style={styles.payBtn}  onPress={() => navigation.navigate("BookingSuccess")}>
-                    <Text style={styles.payText}>Thanh toán</Text>
+                <TouchableOpacity style={styles.payBtn}>
+                    <Text style={styles.payText}> Đang chờ thanh toán</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>
