@@ -2,8 +2,27 @@ import { Alert, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, 
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import apiFitlife from "../../general/api";
+import { useEffect, useState } from "react";
 
 const MemberTrainerDetail = ({ navigation, route }: any) => {
+    const { id } = route.params;
+    const [trainer, setTrainer] = useState<any>(null);
+    const getTrainerDetail = async () => {
+        try {
+            const res = await apiFitlife.get(`/member/my-trainer/${id}`);
+
+            if (res.data.status) {
+                setTrainer(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        getTrainerDetail();
+    }, []);
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -18,15 +37,13 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
                 <View style={styles.card}>
 
                     <View style={styles.topRow}>
-                        <Image
-                            source={{
-                                uri: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400",
-                            }}
-                            style={styles.avatar}
-                        />
+                        <Image source={{ uri: trainer?.avatar }} style={styles.avatar} />
+
 
                         <View style={{ marginLeft: 15, flex: 1 }}>
-                            <Text style={styles.name}>Phạm Minh Tuấn</Text>
+                            <Text style={styles.name}>
+                                {trainer?.name}
+                            </Text>
 
                             <Text style={styles.job}>
                                 Huấn luyện viên cá nhân
@@ -40,7 +57,7 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
                                 <Ionicons name="star" color="#F8B400" size={15} />
 
                                 <Text style={styles.rating}>
-                                    4.9 (86 đánh giá)
+                                    {trainer?.rating} đánh giá
                                 </Text>
                             </View>
                         </View>
@@ -50,9 +67,9 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
 
                     <View style={styles.infoRow}>
                         {[
-                            { value: "8 năm", label: "Kinh nghiệm" },
-                            { value: "120+", label: "Học viên" },
-                            { value: "4.9★", label: "Đánh giá" },
+                            { value: `${trainer?.experience} năm`, label: "Kinh nghiệm" },
+                            { value: trainer?.total_students, label: "Học viên" },
+                            { value: `${trainer?.rating}★`, label: "Đánh giá" },
                         ].map((item, index) => (
                             <View key={index} style={[styles.infoBox, { backgroundColor: index === 0 ? "#EFF6FF" : index === 1 ? "#ECFDF5" : "#FFF7ED", },]}>
                                 <Text style={[styles.infoNumber, { color: index === 0 ? "#60A5FA" : index === 1 ? "#22C55E" : "#F59E0B", },]} >
@@ -65,10 +82,7 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
                     </View>
 
                     <Text style={styles.description}>
-                        Chứng chỉ NASM-CPT & Precision Nutrition.
-                        Chuyên gia về giảm cân, tăng cơ và cải thiện sức khỏe.
-                        Đã huấn luyện nhiều vận động viên chuyên nghiệp
-                        và học viên phổ thông.
+                        {trainer?.note}
                     </Text>
 
                 </View>
@@ -78,15 +92,15 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
                 <Text style={styles.sectionTitle}>Chuyên môn</Text>
 
                 <View style={styles.skillRow}>
-                    {["Strength Training", "HIIT", "CrossFit", "Dinh dưỡng"].map(
-                        (item, index) => (
-                            <View key={index} style={[styles.skillBox, { backgroundColor: index === 0 ? "#EAF4FF" : index === 1 ? "#EAFBF0" : index === 2 ? "#FFF2E8" : "#F3EDFF", },]}>
-                                <Text style={[styles.skill, { color: index === 0 ? "#4F9CF9" : index === 1 ? "#22C55E" : index === 2 ? "#FB923C" : "#A855F7", },]} >
-                                    {item}
+                    {trainer?.specialization
+                        ?.split(",")
+                        .map((item: string, index: number) => (
+                            <View key={index} style={[styles.skillBox, { backgroundColor: index % 4 === 0 ? "#EAF4FF" : index % 4 === 1 ? "#EAFBF0" : index % 4 === 2 ? "#FFF2E8" : "#F3EDFF", },]} >
+                                <Text style={[styles.skill, { color: index % 4 === 0 ? "#4F9CF9" : index % 4 === 1 ? "#22C55E" : index % 4 === 2 ? "#FB923C" : "#A855F7", },]}>
+                                    {item.trim()}
                                 </Text>
                             </View>
-                        )
-                    )}
+                        ))}
                 </View>
 
                 {/* Schedule */}
@@ -94,31 +108,23 @@ const MemberTrainerDetail = ({ navigation, route }: any) => {
                 <Text style={styles.sectionTitle}>Lịch trong tuần</Text>
 
                 <View style={styles.scheduleCard}>
-
                     <View style={styles.scheduleItem}>
                         <View>
-                            <Text style={styles.day}>Thứ 2 & 4 & 6</Text>
-                            <Text style={styles.type}>HIIT Cardio</Text>
+                            <Text style={styles.day}>
+                                {trainer?.active_day} - {trainer?.date}
+                            </Text>
+
+                            <Text style={styles.type}>
+                                {trainer?.schedule}
+                            </Text>
                         </View>
 
                         <View style={styles.timeBox}>
-                            <Text style={styles.time}>06:30 - 07:30</Text>
+                            <Text style={styles.time}>
+                                {trainer?.training_time}
+                            </Text>
                         </View>
                     </View>
-
-                    <View style={styles.line} />
-
-                    <View style={styles.scheduleItem}>
-                        <View>
-                            <Text style={styles.day}>Thứ 3 & 5</Text>
-                            <Text style={styles.type}>Strength Training</Text>
-                        </View>
-
-                        <View style={styles.timeBox}>
-                            <Text style={styles.time}>18:00 - 19:15</Text>
-                        </View>
-                    </View>
-
                 </View>
 
             </ScrollView>

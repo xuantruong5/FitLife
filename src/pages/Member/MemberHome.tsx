@@ -136,11 +136,12 @@ const MemberHome = ({ navigation }: any) => {
 
                 <TouchableOpacity
                     style={styles.functionCard}
-                    // onPress={() => navigation.navigate("TrainerPage")}
+                    onPress={() => navigation.navigate("MemberTrainer")}
                 >
                     <Ionicons name="people-outline" size={26} color="#40A9FF" />
                     <Text style={styles.functionText}>HLV</Text>
                 </TouchableOpacity>
+
 
                 <TouchableOpacity
                     style={styles.functionCard}
