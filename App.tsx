@@ -45,6 +45,7 @@ import MemberChangeSchedule from "./src/pages/Member/MemberChangeSchedule";
 import TrainerEditProfile from "./src/pages/TrainerEditProfile";
 import TrainerChangePassword from "./src/pages/TrainerChangePassword";
 import TrainerTeachingHistory from "./src/pages/TrainerTeachingHistory";
+import MemberAttendanceHistory from "./src/pages/MemberAttendanceHistory";
 
 
 
@@ -182,6 +183,7 @@ const App = () => {
         <Stack.Screen name="Calendar" component={Calendar} />
         <Stack.Screen name="MembersPage" component={MembersPage} />
         <Stack.Screen name="Progress" component={Progress} />
+        <Stack.Screen name="MemberAttendanceHistory" component={MemberAttendanceHistory} />
         <Stack.Screen name="MemberDetails" component={MemberDetails} />
         <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
