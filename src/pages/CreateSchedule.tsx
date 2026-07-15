@@ -1,15 +1,18 @@
-import { useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from "react-native"
+import { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
+import apiFitlife from "../general/api";
+import DatePicker from "react-native-date-picker";
+
 
 
 const CreateSchedule = ({ navigation }: any) => {
     const [selectedDays, setSelectedDays] = useState([]);
     const [type, setType] = useState("private");
-    const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    const [packageType, setPackageType] = useState("basic");
     const getCurrentWeek = () => {
         const today = new Date();
         const monday = new Date(today);
@@ -22,16 +25,102 @@ const CreateSchedule = ({ navigation }: any) => {
         };
     };
     const week = getCurrentWeek();
-    const toggleDay = (day: string) => {
-        if (selectedDays.includes(day)) {
-            setSelectedDays(selectedDays.filter(item => item !== day));
-        } else {
-            setSelectedDays([...selectedDays, day]);
+
+    // giờ 
+    const [openStartTime, setOpenStartTime] = useState(false);
+    const [openEndTime, setOpenEndTime] = useState(false);
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
+    const formatTime = (time: Date) => {
+        return time.toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        });
+    }
+
+
+
+    const [title, setTitle] = useState("");
+    const [room, setRoom] = useState("");
+    const [note, setNote] = useState("");
+    const [maxMembers, setMaxMembers] = useState("");
+
+
+    const [date, setDate] = useState(new Date());
+    const [openDate, setOpenDate] = useState(false);
+    const formatDate = (date: Date) => {
+        return date.toISOString().split("T")[0];
+    };
+
+
+    const [selectedBranch, setSelectedBranch] = useState("");
+    const [selectedPackage, setSelectedPackage] = useState("");
+    const [branches, setBranches] = useState<any[]>([]);
+    const [packages, setPackages] = useState<any[]>([]);
+
+    const loadData = async () => {
+        try {
+            const res = await apiFitlife.get("/trainer/goi/chi-nhanh");
+
+            if (res.data.success) {
+                setBranches(res.data.branches);
+                setPackages(res.data.packages);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
-    // giờ 
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
+    useEffect(() => {
+        loadData();
+    }, []);
+    const handleCreateSchedule = async () => {
+        try {
+
+            if (
+                !title ||
+                !date ||
+                !startTime ||
+                !endTime ||
+                !selectedPackage ||
+                !selectedBranch ||
+                !maxMembers
+            ) {
+                Alert.alert("Vui lòng nhập đầy đủ thông tin");
+                return;
+            }
+
+            const body = {
+                title,
+                date: formatDate(date),
+                start_time: formatTime(startTime),
+                end_time: formatTime(endTime),
+                room,
+                id_package: selectedPackage,
+                id_branch: selectedBranch,
+                max_members: Number(maxMembers),
+                note,
+            };
+
+            const res = await apiFitlife.post("/trainer/create-schedule", body);
+
+            if (res.data.success) {
+                Alert.alert(res.data.message);
+                navigation.goBack();
+            }
+
+        } catch (error: any) {
+
+            console.log(error?.data);
+
+            if (error?.data?.message) {
+                Alert.alert(error.data.message);
+            } else {
+                Alert.alert("Có lỗi xảy ra.");
+            }
+
+        }
+    };
 
 
 
@@ -50,7 +139,19 @@ const CreateSchedule = ({ navigation }: any) => {
                 <View style={styles.card}>
                     <Text style={styles.sectionTitle}>THÔNG TIN KHÓA TẬP</Text>
                     <Text style={styles.label}>Tên khóa tập / Chủ đề</Text>
-                    <TextInput placeholder="VD: Giảm mỡ cấp tốc 30 ngày" style={styles.input} />
+                    <TextInput placeholder="VD: Giảm mỡ cấp tốc 30 ngày" style={styles.input} value={title} onChangeText={setTitle} />
+                    <Text style={[styles.label, { marginTop: 10 }]}>
+                        Phòng học
+                    </Text>
+
+                    <TextInput placeholder="VD: Phòng A" style={styles.input} value={room} onChangeText={setRoom} />
+
+                    <Text style={[styles.label, { marginTop: 10 }]}>
+                        Số học viên tối đa
+                    </Text>
+
+                    <TextInput style={styles.input} keyboardType="numeric" value={maxMembers} onChangeText={setMaxMembers} />
+
                     <Text style={[styles.label, { marginTop: 15 }]}>Loại hình</Text>
 
                     <View style={styles.typeContainer}>
@@ -67,102 +168,144 @@ const CreateSchedule = ({ navigation }: any) => {
                         </TouchableOpacity>
                     </View>
 
+                    <Text style={[styles.label, { marginTop: 10 }]}>
+                        Gói tập
+                    </Text>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            mode="dropdown"
+                            selectedValue={selectedPackage}
+                            onValueChange={(itemValue) => setSelectedPackage(itemValue)}
+                            dropdownIconColor="#666"
+                            style={styles.picker} >
+                            <Picker.Item label="Chọn gói tập..." value="" color="#999" />
+                            {packages.map((item) => (
+                                <Picker.Item key={item.id} label={item.name} value={item.id} />
+                            ))}
+                        </Picker>
+                    </View>
+                    <Text style={[styles.label, { marginTop: 10 }]}>
+                        Chi Nhánh
+                    </Text>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            mode="dropdown"
+                            selectedValue={selectedBranch}
+                            onValueChange={(itemValue) => setSelectedBranch(itemValue)}
+                            dropdownIconColor="#666"
+                            style={styles.picker} >
+                            <Picker.Item label="Chọn chi nhánh..." value="" color="#999" />
+
+                            {branches.map((item) => (
+                                <Picker.Item key={item.id} label={item.name} value={item.id} />
+                            ))}
+                        </Picker>
+                    </View>
+
+
+
 
                 </View>
                 <View style={styles.card}>
                     <Text style={styles.sectionTitle}>KHUNG GIỜ GIẢNG DẠY</Text>
                     <View style={styles.headerRow}>
                         <Text style={[styles.step, { marginBottom: 0 }]}>
-                            1. Chọn Thứ trong tuần
+                            1. Chọn Ngày
                         </Text>
-
                         <Text style={styles.weekText}>
                             Tuần: {week.start} - {week.end}
                         </Text>
                     </View>
-                    <View style={styles.dayWrap}>
-                        {days.map((day) => {
-                            const active = selectedDays.includes(day);
-                            return (
-                                <TouchableOpacity key={day} onPress={() => toggleDay(day)} style={[styles.dayItem, active && styles.dayItemActive,]}>
-                                    <Text style={[styles.dayText, active && styles.dayTextActive,]}>
-                                        {day}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
+                    <Text style={styles.step}>
+                        Ngày học
+                    </Text>
+                    <TouchableOpacity style={styles.dateInput} onPress={() => setOpenDate(true)}>
+                        <Text>
+                            {formatDate(date)}
+                        </Text>
+                        <Ionicons name="calendar-outline" size={20} color="#666" />
+                    </TouchableOpacity>
 
-                    </View>
+                    <DatePicker modal mode="date" open={openDate} date={date} onConfirm={(value) => { setOpenDate(false); setDate(value); }} onCancel={() => setOpenDate(false)} />
                     <Text style={[styles.step, { marginTop: hp(1.5) }]}>
                         2. Khung giờ giảng dạy
                     </Text>
 
                     <View style={styles.timeRow}>
+
                         <View style={styles.timeBox}>
                             <Text style={styles.timeLabel}>Giờ bắt đầu</Text>
 
-                            <View style={styles.timeInput}>
-                                <Ionicons name="time-outline" size={wp(4.5)} color="#4A90FF" />
-                                <Picker mode="dropdown" style={{ flex: 1 }} selectedValue={startTime} onValueChange={(itemValue) => setStartTime(itemValue)} enabled={true} dropdownIconColor="#4A90FF">
-                                    <Picker.Item label="07:00" value="07:00" />
-                                    <Picker.Item label="08:00" value="08:00" />
-                                    <Picker.Item label="09:00" value="09:00" />
-                                    <Picker.Item label="10:00" value="10:00" />
-                                    <Picker.Item label="11:00" value="11:00" />
-                                    <Picker.Item label="12:00" value="12:00" />
-                                    <Picker.Item label="13:00" value="13:00" />
-                                    <Picker.Item label="14:00" value="14:00" />
-                                    <Picker.Item label="15:00" value="15:00" />
-                                    <Picker.Item label="16:00" value="16:00" />
-                                    <Picker.Item label="17:00" value="17:00" />
-                                    <Picker.Item label="18:00" value="18:00" />
-                                </Picker>
-                            </View>
+                            <TouchableOpacity
+                                style={styles.dateInput}
+                                onPress={() => setOpenStartTime(true)}
+                            >
+                                <Text style={styles.dateText}>
+                                    {formatTime(startTime)}
+                                </Text>
+
+                                <Ionicons
+                                    name="time-outline"
+                                    size={20}
+                                    color="#4A90FF"
+                                />
+                            </TouchableOpacity>
                         </View>
 
-                        <Ionicons
-                            name="arrow-forward"
-                            size={wp(5)}
-                            color="#B0B0B0"
-                            style={{ marginHorizontal: wp(2), }}
-                        />
+                        <View style={{ width: 15 }} />
 
                         <View style={styles.timeBox}>
                             <Text style={styles.timeLabel}>Giờ kết thúc</Text>
 
-                            <View style={styles.timeInput}>
-                                <Ionicons name="time-outline" size={wp(4.5)} color="#FF8A00" />
-                                <Picker mode="dropdown" style={{ flex: 1 }} selectedValue={endTime} onValueChange={(itemValue) => setEndTime(itemValue)}>
-                                    <Picker.Item label="08:00" value="08:00" />
-                                    <Picker.Item label="09:00" value="09:00" />
-                                    <Picker.Item label="10:00" value="10:00" />
-                                    <Picker.Item label="11:00" value="11:00" />
-                                    <Picker.Item label="12:00" value="12:00" />
-                                    <Picker.Item label="13:00" value="13:00" />
-                                    <Picker.Item label="14:00" value="14:00" />
-                                    <Picker.Item label="15:00" value="15:00" />
-                                    <Picker.Item label="16:00" value="16:00" />
-                                    <Picker.Item label="17:00" value="17:00" />
-                                    <Picker.Item label="18:00" value="18:00" />
-                                </Picker>
-                            </View>
+                            <TouchableOpacity
+                                style={styles.dateInput}
+                                onPress={() => setOpenEndTime(true)}
+                            >
+                                <Text style={styles.dateText}>
+                                    {formatTime(endTime)}
+                                </Text>
+
+                                <Ionicons
+                                    name="time-outline"
+                                    size={20}
+                                    color="#FF8A00"
+                                />
+                            </TouchableOpacity>
                         </View>
+
                     </View>
+                    <DatePicker
+                        modal
+                        mode="time"
+                        open={openStartTime}
+                        date={startTime}
+                        onConfirm={(time) => {
+                            setOpenStartTime(false);
+                            setStartTime(time);
+                        }}
+                        onCancel={() => setOpenStartTime(false)}
+                    />
+
+                    <DatePicker
+                        modal
+                        mode="time"
+                        open={openEndTime}
+                        date={endTime}
+                        onConfirm={(time) => {
+                            setOpenEndTime(false);
+                            setEndTime(time);
+                        }}
+                        onCancel={() => setOpenEndTime(false)}
+                    />
                 </View>
                 <View style={styles.card}>
                     <Text style={styles.sectionTitle}>GHI CHÚ CHO QUẢN LÝ</Text>
 
-                    <TextInput
-                        multiline
-                        numberOfLines={5}
-                        placeholder="Nhập ghi chú hoặc đề xuất giá bán cho Admin..."
-                        style={styles.note}
-                        textAlignVertical="top"
-                    />
+                    <TextInput multiline numberOfLines={5} placeholder="Nhập ghi chú hoặc đề xuất giá bán cho Admin..." value={note} onChangeText={setNote} style={styles.note} textAlignVertical="top" />
                 </View>
-                <TouchableOpacity style={styles.submitBtn}>
+                <TouchableOpacity style={styles.submitBtn} onPress={handleCreateSchedule}>
                     <Text style={styles.submitText}>
-                        Send 
+                        Send
                     </Text>
                 </TouchableOpacity>
 
@@ -243,17 +386,27 @@ const styles = StyleSheet.create({
     },
 
     input: {
-        height: hp(6),
+        height: hp(4),
         borderRadius: wp(3.5),
         backgroundColor: "#F4F6FA",
         paddingHorizontal: wp(4),
-        fontSize: wp(3.5),
+        fontSize: wp(3.9),
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
     },
     typeContainer: {
         flexDirection: "row",
         backgroundColor: "#F3F5F9",
         borderRadius: 16,
         padding: 5,
+    },
+    typeContainer1: {
+        flexDirection: "row",
+        backgroundColor: "#F3F5F9",
+        borderRadius: 16,
+        padding: 5,
+        marginTop: 10
     },
     typeBtn: {
         flex: 1,
@@ -388,6 +541,36 @@ const styles = StyleSheet.create({
         marginLeft: wp(2),
         fontSize: wp(3),
         color: "#666",
+    },
+    pickerContainer: {
+        backgroundColor: "#F4F6FA",
+        borderRadius: 16,
+        overflow: "hidden",
+        marginTop: 5,
+    },
+
+    picker: {
+        height: 55,
+        width: "100%",
+        color: "#333",
+    },
+    dateInput: {
+        height: hp(6),
+        backgroundColor: "#F4F6FA",
+        borderRadius: wp(3.5),
+        paddingHorizontal: wp(4),
+
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+
+        marginTop: hp(0.5),
+    },
+
+    dateText: {
+        fontSize: wp(3.9),
+        color: "#18223B",
+        fontWeight: "500",
     },
 });
 export default CreateSchedule;

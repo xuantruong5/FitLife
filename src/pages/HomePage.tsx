@@ -28,7 +28,7 @@ const HomePage = ({ navigation }: any) => {
                 <View style={styles.banner} >
                     <View>
                         <Text style={styles.bannerText1}>Hôm nay</Text>
-                        <Text style={styles.bannerText2}>3 buổi dạy sắp tới</Text>
+                        <Text style={styles.bannerText2}>Buổi dạy sắp tới</Text>
                     </View>
                     <TouchableOpacity style={styles.btnView} onPress={() => navigation.navigate('Attendance')} >
                         <Text style={styles.btnViewText}>Xem </Text>
