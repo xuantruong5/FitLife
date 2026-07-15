@@ -3,8 +3,40 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { BarChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import apiFitlife from "../general/api";
+
+
 const TrainerIncome = ({ navigation }: any) => {
+
+    const [income, setIncome] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
+
+    const getIncome = async () => {
+        try {
+            setLoading(true);
+
+            const res = await apiFitlife.get(
+                `/trainer/income?month=${currentMonth}&year=${currentYear}`
+            );
+
+            if (res.data.status) {
+                setIncome(res.data);
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        getIncome();
+    }, [selectedDate]);
+
+
+
     const incomes = [
         {
             id: 1,
@@ -29,7 +61,7 @@ const TrainerIncome = ({ navigation }: any) => {
         },
 
     ];
-    const [selectedDate, setSelectedDate] = useState(new Date());
+
 
     const changeMonth = (type: "prev" | "next") => {
         const newDate = new Date(selectedDate);
@@ -63,11 +95,11 @@ const TrainerIncome = ({ navigation }: any) => {
                 </View>
                 <View style={styles.incomeCard}>
                     <Text style={styles.cardLabel}>
-                        Thu nhập dự kiến - Tháng {currentMonth}/{currentYear}
+                        Thu nhập  - Tháng {currentMonth}/{currentYear}
                     </Text>
 
                     <Text style={styles.money}>
-                        15.500.000 VNĐ
+                        {Number(income?.thu_nhap || 0).toLocaleString("vi-VN")} VNĐ
                     </Text>
                 </View>
                 <View style={styles.chartCard}>
@@ -103,20 +135,13 @@ const TrainerIncome = ({ navigation }: any) => {
 
                     <BarChart
                         data={{
-                            labels: [
-                                "T1",
-                                "T2",
-                                "T3",
-                                "T4",
-                            ],
+                            labels: income?.chart?.map((item: any) => item.week) || [],
                             datasets: [
                                 {
-                                    data: [
-                                        3.2,
-                                        4.8,
-                                        3.9,
-                                        3.6,
-                                    ],
+                                    data:
+                                        income?.chart?.map(
+                                            (item: any) => Number(item.income) / 1000000
+                                        ) || [],
                                 },
                             ],
                         }}
@@ -155,25 +180,30 @@ const TrainerIncome = ({ navigation }: any) => {
                     Lịch sử dạy gần đây
                 </Text>
 
-                {incomes.map((item) => (
+                {income?.chi_tiet?.map((item: any) => (
                     <View key={item.id} style={styles.historyCard}>
                         <View style={styles.leftRow}>
                             <View style={styles.iconWrap}>
-                                <Ionicons name={item.icon as any} size={20} color="#60A5FA" />
+                                <Ionicons
+                                    name="barbell"
+                                    size={20}
+                                    color="#60A5FA"
+                                />
                             </View>
 
                             <View>
                                 <Text style={styles.className}>
-                                    {item.title}
+                                    {item.schedule_title}
                                 </Text>
+
                                 <Text style={styles.date}>
-                                    {item.date}
+                                    {item.schedule_date}
                                 </Text>
                             </View>
                         </View>
-                        <Text
-                            style={styles.moneyText}>
-                            + {item.money}
+
+                        <Text style={styles.moneyText}>
+                            + {Number(item.total_amount).toLocaleString("vi-VN")}đ
                         </Text>
                     </View>
                 ))}

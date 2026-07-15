@@ -146,11 +146,11 @@ const MemberSchedule = ({ navigation }: any) => {
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.orangeBtn} onPress={() => {
-    console.log(item);
-    navigation.navigate("MemberChangeSchedule", {
-        id: item.id,
-    });
-}} >
+                                console.log(item);
+                                navigation.navigate("MemberChangeSchedule", {
+                                    id: item.id,
+                                });
+                            }} >
                                 <Text style={styles.orangeText}>Đổi lịch</Text>
                             </TouchableOpacity>
 
