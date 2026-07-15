@@ -4,7 +4,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { useState } from "react";
 import DatePicker from "react-native-date-picker";
 
-const StoreScheduleMember = () => {
+const StoreScheduleMember = ({ navigation }: any) => {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [openStartDate, setOpenStartDate] = useState(false);
@@ -34,16 +34,16 @@ const StoreScheduleMember = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.back}>
+                <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
                     <Ionicons name="chevron-back" size={26} color="#555" />
                 </TouchableOpacity>
 
                 <View>
-                    <Text style={styles.smallTitle}>
-                        TẠO LỊCH HỌC
-                    </Text>
                     <Text style={styles.name}>
                         Nguyễn Văn An 🏅
+                    </Text>
+                     <Text style={styles.name}>
+                       goi cao cap
                     </Text>
                 </View>
                 <Text style={styles.done}>
@@ -51,6 +51,8 @@ const StoreScheduleMember = () => {
                 </Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
+               
+
                 <View style={styles.dateBox}>
                     <View style={styles.calendar}>
                         <Ionicons name="calendar-outline" size={25} color="#8A99A8" />

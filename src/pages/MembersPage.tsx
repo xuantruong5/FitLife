@@ -139,6 +139,7 @@ const MembersPage = ({ navigation }: any) => {
                                 <Ionicons name="chevron-forward" size={18} color="#fff" />
                             </TouchableOpacity>
                         </View>
+                        
                     )
                 }
                 )}
