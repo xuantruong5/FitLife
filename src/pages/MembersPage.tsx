@@ -1,63 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
+import apiFitlife from "../general/api";
 
-const members = [
-    {
-        id: "1",
-        name: "Nguyễn Văn A",
-        package: "Gói Private 3 tháng",
-        progress: 65,
-        sessions: "13/20 buổi",
-        color: "#4BA3F5",
 
-    },
-    {
-        id: "2",
-        name: "Trần Thị Bích",
-        package: "Gói Nhóm 10 buổi",
-        progress: 80,
-        sessions: "8/10 buổi",
-        color: "#2ecc71",
-    },
-    {
-        id: "3",
-        name: "Lê Hoàng Cường",
-        package: "Gói VIP 6 tháng",
-        progress: 40,
-        sessions: "24/60 buổi",
-        color: "#ff7f50",
-    },
-    {
-        id: "4",
-        name: "Phạm Minh Đức",
-        package: "Gói Private 1 tháng",
-        progress: 90,
-        sessions: "9/10 buổi",
-        color: "#2ecc71",
-    },
-    {
-        id: "5",
-        name: "Võ Thị Hoa",
-        package: "Gói Yoga 20 buổi",
-        progress: 55,
-        sessions: "11/20 buổi",
-        color: "#4BA3F5",
-    },
-];
 
 
 
 const MembersPage = ({ navigation }: any) => {
-    const [status, setStatus] = useState("active");
+    const [members, setMembers] = useState<any[]>([]);
+    const [status, setStatus] = useState("1");
+    const [keyword, setKeyword] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const getMembers = async (memberStatus = "1") => {
+        try {
+            setLoading(true);
+
+            const res = await apiFitlife.get("/trainer/member-packages", {
+                params: {
+                    status: memberStatus,
+                },
+            });
+            console.log("Response:", res.data);
+
+            if (res.data.status) {
+                setMembers(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        getMembers(status);
+    }, [status]);
+
+    const filteredMembers = useMemo(() => {
+        return members.filter((item: any) =>
+            item.member_name
+                .toLowerCase()
+                .includes(keyword.toLowerCase())
+        );
+    }, [members, keyword]);
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-                    <Ionicons name="chevron-back" size={22} color="#444"/>
+                    <Ionicons name="chevron-back" size={22} color="#444" />
                 </TouchableOpacity>
 
                 <View>
@@ -66,36 +61,26 @@ const MembersPage = ({ navigation }: any) => {
                 </View>
 
                 <TouchableOpacity style={styles.iconBtn}>
-                    <Ionicons name="options-outline" size={22} color="#4BA3F5"/>
+                    <Ionicons name="options-outline" size={22} color="#4BA3F5" />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.searchBox}>
-                <Ionicons
-                    name="search-outline"
-                    size={18}
-                    color="#999"
-                />
-                <TextInput
-                    placeholder="Tìm học viên..."
-                    style={styles.input}
-                />
+                <Ionicons name="search-outline" size={18} color="#999" />
+                <TextInput placeholder="Tìm học viên..." style={styles.input} value={keyword} onChangeText={setKeyword} />
             </View>
 
             <View style={styles.statsRow}>
                 <Text style={styles.countText}>
-                    {members.length} học viên
+                    {filteredMembers.length} học viên
                 </Text>
 
                 <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={status}
-                        onValueChange={(value) => setStatus(value)}
-                        
-                    >
-                        <Picker.Item  label="active" value="active" />
-                        <Picker.Item label="stopped" value="stopped" />
-                        <Picker.Item label="completed" value="completed" />
+                    <Picker selectedValue={status} onValueChange={(value) => setStatus(value)}>
+                        <Picker.Item label="Đang hoạt động" value="1" />
+                        <Picker.Item label="Hết hạn" value="0" />
+                        <Picker.Item label="Chưa duyệt" value="2" />
+                        <Picker.Item label="Đã hủy" value="3" />
                     </Picker>
                 </View>
 
@@ -106,45 +91,58 @@ const MembersPage = ({ navigation }: any) => {
                 </TouchableOpacity> */}
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                {members.map((item) => (
-                    <View key={item.id} style={styles.card}>
-                        <View style={styles.avatar}>
-                            <Ionicons  name="person"  size={24} color="#fff" /> 
-                        </View>
-                        <View style={styles.info}>
-                            <Text style={styles.name}>
-                                {item.name} 🏅
-                            </Text>
-
-                            <Text style={styles.package}>
-                                {item.package} · {item.sessions}
-                            </Text>
-
-                            <View style={styles.progressContainer}>
-                                <View style={styles.progressBg}>
-                                    <View
-                                        style={[
-                                            styles.progressFill,
-                                            {
-                                                width: `${item.progress}%`,
-                                                backgroundColor: item.color,
-                                            },
-                                        ]}
-                                    />
-                                </View>
-
-                                <Text style={styles.progressText}>
-                                    {item.progress}%
-                                </Text>
+                {filteredMembers.map((item: any) => {
+                    const progress =
+                        item.total_sessions > 0
+                            ? Math.round((item.used_sessions / item.total_sessions) * 100)
+                            : 0;
+                    const progressColor =
+                        progress >= 80
+                            ? "#2ecc71"
+                            : progress >= 50
+                                ? "#4BA3F5"
+                                : "#ff7f50";
+                    return (
+                        <View key={item.id} style={styles.card}>
+                            <View style={styles.avatar}>
+                                <Ionicons name="person" size={24} color="#fff" />
                             </View>
+                            <View style={styles.info}>
+                                <Text style={styles.name}>
+                                    {item.member_name} 🏅
+                                </Text>
+
+                                <Text style={styles.package}>
+                                    {item.package_name} · {item.used_sessions}/{item.total_sessions} buổi
+                                </Text>
+
+                                <View style={styles.progressContainer}>
+                                    <View style={styles.progressBg}>
+                                        <View
+                                            style={[
+                                                styles.progressFill,
+                                                {
+                                                    width: `${progress}%`,
+                                                    backgroundColor: progressColor,
+                                                },
+                                            ]}
+                                        />
+                                    </View>
+
+                                    <Text style={styles.progressText}>
+                                        {progress}%
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity onPress={() => navigation.navigate("MemberAttendanceHistory", { member: item })} style={styles.arrowBtn}>
+                                <Ionicons name="chevron-forward" size={18} color="#fff" />
+                            </TouchableOpacity>
                         </View>
-
-                        <TouchableOpacity onPress={() => navigation.navigate("Progress")} style={styles.arrowBtn}>
-                            <Ionicons name="chevron-forward" size={18} color="#fff"/>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-
+                        
+                    )
+                }
+                )}
             </ScrollView>
 
 
@@ -184,7 +182,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
     },
-   
+
 
     subTitle: {
         textAlign: "center",

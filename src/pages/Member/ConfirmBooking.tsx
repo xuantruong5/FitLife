@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import apiFitlife from "../../general/api";
@@ -6,14 +6,71 @@ import { useEffect, useState } from "react";
 
 const confirmBooking = ({ navigation, route }: any) => {
     const { scheduleId } = route.params;
-    console.log("route.params =", route.params);
-console.log("scheduleId =", scheduleId);
+    // console.log("route.params =", route.params);
+    // console.log("scheduleId =", scheduleId);
+    const [promotionCode, setPromotionCode] = useState("");
+    const [promotionId, setPromotionId] = useState<number | null>(null);
+    const [discount, setDiscount] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+
+
     const [detail, setDetail] = useState<any>(null);
     const getDetail = async () => {
         const res = await apiFitlife.get(`/member/schedule/${scheduleId}`);
 
         if (res.data.status) {
             setDetail(res.data.data);
+            setTotalPrice(res.data.data.price);
+        }
+    };
+
+    const createOrder = async () => {
+        console.log("Đã bấm nút");
+
+
+        try {
+            const res = await apiFitlife.post("/member/create-order", {
+                id_schedule: scheduleId,
+                payment_method: "MB_BANK",
+                // id_promotion: promotionCode
+                //     ? Number(promotionCode)
+                //     : null,
+                id_promotion: promotionId,
+                 discount: discount,
+            total_amount: totalPrice,
+            subtotal: detail?.price,
+            });
+            console.log(res.data);
+
+            if (res.data.status) {
+                navigation.navigate("payment", {
+                    order: res.data.data,
+                });
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    const checkPromotion = async () => {
+        if (!promotionCode.trim()) {
+            setDiscount(0);
+            setTotalPrice(detail?.price);
+            setPromotionId(null);
+            return;
+        }
+        try {
+            const res = await apiFitlife.post("/member/check-promotion",{code: promotionCode,subtotal: detail?.price});
+            console.log(res.data);
+            if (res.data.status) {
+                setDiscount(res.data.data.discount);
+                setTotalPrice(res.data.data.total_amount);
+                setPromotionId(res.data.data.promotion_id);
+            }
+        } catch (error: any) {
+            console.log(error.response?.data);
+            Alert.alert( "Thông báo", "Mã giảm giá không hợp lệ" );
+            setDiscount(0);
+            setTotalPrice(detail?.price);
         }
     };
     useEffect(() => {
@@ -21,9 +78,10 @@ console.log("scheduleId =", scheduleId);
     }, []);
 
 
+
     return (
         <View style={{ flex: 1, backgroundColor: "#F7F8FC" }}>
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: hp(9) }}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                         <Ionicons name="arrow-back" size={22} color="#333" />
@@ -77,7 +135,7 @@ console.log("scheduleId =", scheduleId);
 
                 <View style={styles.card}>
                     <View style={styles.trainerRow}>
-                        <Image source={{ uri: detail?.avatar }}style={styles.avatar}/>
+                        <Image source={{ uri: detail?.avatar }} style={styles.avatar} />
                         <View style={{ flex: 1, marginLeft: 12 }}>
                             <Text style={styles.trainerName}>
                                 {detail?.trainer_name}
@@ -122,7 +180,7 @@ console.log("scheduleId =", scheduleId);
                             <Text style={styles.label}>Giờ bắt đầu</Text>
                         </View>
                         <Text style={styles.time}>
-                            {detail?.start_time.slice(0,5)}
+                            {detail?.start_time.slice(0, 5)}
                         </Text>
                     </View>
                     <View style={styles.infoRow}>
@@ -154,7 +212,9 @@ console.log("scheduleId =", scheduleId);
 
                     <View style={styles.costRow}>
                         <Text style={styles.costLabel}>Gói Tiêu Chuẩn (đã bao gồm)</Text>
-                        <Text style={styles.free}>-150.000đ</Text>
+                        <Text style={styles.free}>
+                            -{discount.toLocaleString("vi-VN")}đ
+                        </Text>
                     </View>
 
                     <View style={styles.costRow}>
@@ -166,9 +226,16 @@ console.log("scheduleId =", scheduleId);
                         <Text style={styles.costLabel}>VAT (0%)</Text>
                         <Text style={styles.costValue}>0đ</Text>
                     </View>
-                    <View style={styles.costRow}>
-                        <Text style={styles.costLabel}>Giảm Giá</Text>
-                        <Text style={styles.costValue}>0đ</Text>
+                    <View style={styles.promotionBox}>
+
+                        <Text style={styles.costLabel}>
+                            Mã giảm giá
+                        </Text>
+
+                        <View style={styles.promotionRow}>
+                            <TextInput placeholder="Nhập mã khuyến mãi" value={promotionCode}  onChangeText={(text)=>{ setPromotionCode(text);}}  onEndEditing={checkPromotion} style={styles.inputPromotion} />
+                        </View>
+
                     </View>
 
                     <View style={styles.divider} />
@@ -180,7 +247,7 @@ console.log("scheduleId =", scheduleId);
                         </View>
 
                         <Text style={styles.totalPrice}>
-                            {detail?.price.toLocaleString("vi-VN")}đ
+                            {totalPrice.toLocaleString("vi-VN")}đ
                         </Text>
                     </View>
                 </View>
@@ -195,8 +262,7 @@ console.log("scheduleId =", scheduleId);
 
                 <TouchableOpacity
                     style={styles.confirmBtn}
-                    onPress={() => navigation.navigate("payment")}
-                >
+                    onPress={createOrder}>
                     <Text style={styles.btnText}>Xác nhận</Text>
                 </TouchableOpacity>
             </View>
@@ -493,6 +559,27 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "700",
     },
+    promotionBox: {
+        marginVertical: 10,
+    },
+
+
+    promotionRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+    },
+
+
+    inputPromotion: {
+        flex: 1,
+        height: 45,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        paddingHorizontal: 15,
+        backgroundColor: "#F9FAFB",
+    }
 
 })
 export default confirmBooking;

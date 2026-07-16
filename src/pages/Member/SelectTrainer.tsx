@@ -175,7 +175,7 @@ const selecttrainer = ({ navigation, route }: any) => {
                     </View>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity style={styles.detailBtn} onPress={() => navigation.navigate("MemberTrainerDetail", {
-                            trainer: item,
+                            id: item.id,
                         })}>
                             <Text style={styles.detailText}>
                                 Xem chi tiết

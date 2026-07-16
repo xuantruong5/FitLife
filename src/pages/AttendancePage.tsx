@@ -2,7 +2,9 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import apiFitlife from "../general/api";
+
 
 const getWeekDays = (weekOffset = 0) => {
     const today = new Date();
@@ -32,6 +34,61 @@ const Attendance = ({ navigation }: any) => {
     const [selectedDate, setSelectedDate] = useState(new Date().getDate());
     const currentMonth = weekDays[3]?.month;
     const currentYear = weekDays[3]?.year;
+
+
+
+
+    const [schedules, setSchedules] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const getTodaySchedules = async (date?: string) => {
+        try {
+            setLoading(true);
+
+            const res = await apiFitlife.get("/trainer/today-schedules", {
+                params: date ? { date } : {},
+            });
+
+            if (res.data.status) {
+                setSchedules(res.data.data);
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const changeAttendance = async (
+        id_schedule_member: number,
+        status: number
+    ) => {
+        try {
+            const res = await apiFitlife.post("/trainer/change/attendances",
+                {
+                    id_schedule_member,
+                    status,
+                }
+            );
+
+            if (res.data.status) {
+                // load lại danh sách
+                getTodaySchedules();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+
+
+
+
+
+
+
+    useEffect(() => {
+        const today = new Date().toISOString().split("T")[0];
+        getTodaySchedules();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -76,7 +133,8 @@ const Attendance = ({ navigation }: any) => {
 
                     <View style={styles.calendarRow}>
                         {weekDays.map((item, index) => (
-                            <TouchableOpacity key={index} onPress={() => setSelectedDate(item.date)} style={[styles.dayItem, selectedDate === item.date && styles.dayItemActive]}>
+                            <TouchableOpacity key={index} onPress={() => { setSelectedDate(item.date); const date = `${item.year}-${String(item.month).padStart(2, "0")}-${String(item.date).padStart(2, "0")}`; getTodaySchedules(date); }}
+                                style={[styles.dayItem, selectedDate === item.date && styles.dayItemActive]}>
                                 <Text
                                     style={[
                                         styles.dayText,
@@ -111,114 +169,125 @@ const Attendance = ({ navigation }: any) => {
                     </Text>
 
                     <Text style={styles.sectionTitle}>
-                        3 ca tập hôm nay
+                        {schedules.length} ca tập
                     </Text>
 
-                    <View style={styles.card}>
-                        <View style={styles.timeRow}>
-                            <View style={styles.timeLeft}>
-                                <Ionicons name="time-outline" size={16} color="#4BA3F5" ></Ionicons>
-                                <Text style={styles.timeText}>
-                                    07:00 - 08:00 AM
-                                </Text>
+                    {schedules.map((item: any) => {
+                        const member = item.schedule_members?.[0]?.member;
+                        const attendance = item.schedule_members?.[0]?.attendance;
+
+                        return (
+                            <View key={item.id} style={styles.card}>
+                                <View style={styles.timeRow}>
+                                    <View style={styles.timeLeft}>
+                                        <Ionicons
+                                            name="time-outline"
+                                            size={16}
+                                            color="#4BA3F5"
+                                        />
+
+                                        <Text style={styles.timeText}>
+                                            {item.start_time.substring(0, 5)} - {item.end_time.substring(0, 5)}
+                                        </Text>
+                                    </View>
+
+                                    {attendance?.status === 1 ? (
+                                        <TouchableOpacity style={styles.doneBadge}>
+                                            <Text style={styles.doneText}>
+                                                Đã điểm danh
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity style={styles.waitBadge}>
+                                            <Text style={styles.waitText}>
+                                                Chờ điểm danh
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+
+                                <View style={styles.userRow}>
+                                    <View
+                                        style={[
+                                            styles.avatar,
+                                            { backgroundColor: "#4BA3F5" },
+                                        ]}
+                                    >
+                                        <Text style={styles.avatarText}>
+                                            {member?.name?.charAt(0)}
+                                        </Text>
+                                    </View>
+
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.name}>
+                                            {member?.name}
+                                        </Text>
+
+                                        <Text style={styles.note}>
+                                            {item.package?.name}
+                                        </Text>
+                                    </View>
+
+                                    {attendance?.status === 1 ? (
+                                        <TouchableOpacity style={styles.presentBadge}>
+                                            <Text style={styles.presentText}>✓ Có mặt</Text>
+                                        </TouchableOpacity>
+                                    ) : attendance?.status === 2 ? (
+                                        <TouchableOpacity
+                                            style={[styles.presentBadge, { backgroundColor: "#FDECEC" }]}
+                                        >
+                                            <Text style={[styles.presentText, { color: "#E74C3C" }]}>
+                                                ✕ Vắng
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ) : attendance?.status === 3 ? (
+                                        <TouchableOpacity
+                                            style={[styles.presentBadge, { backgroundColor: "#FFF4E5" }]}
+                                        >
+                                            <Text style={[styles.presentText, { color: "#F39C12" }]}>
+                                                ⏰ Đi trễ
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <View style={{ flexDirection: "row" }}>
+                                            <TouchableOpacity
+                                                style={styles.confirmBtn}
+                                                onPress={() =>
+                                                    changeAttendance(item.schedule_members[0].id, 1)
+                                                }
+                                            >
+                                                <Text style={styles.confirmText}>Có mặt</Text>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.confirmBtn,
+                                                    { backgroundColor: "#F39C12", marginLeft: 6 },
+                                                ]}
+                                                onPress={() =>
+                                                    changeAttendance(item.schedule_members[0].id, 3)
+                                                }
+                                            >
+                                                <Text style={styles.confirmText}>Đi trễ</Text>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.confirmBtn,
+                                                    { backgroundColor: "#E74C3C", marginLeft: 6 },
+                                                ]}
+                                                onPress={() =>
+                                                    changeAttendance(item.schedule_members[0].id, 2)
+                                                }
+                                            >
+                                                <Text style={styles.confirmText}>Vắng</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
+                                </View>
                             </View>
-                            <TouchableOpacity style={styles.doneBadge}>
-                                <Text style={styles.doneText}>
-                                    Đã xác nhận
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.userRow} >
-                            <View style={[styles.avatar, { backgroundColor: "#5B9DFF" }]}>
-                                <Text style={styles.avatarText}>
-                                    A
-                                </Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.name}>
-                                    Nguyễn Văn A
-                                </Text>
-                                <Text style={styles.note}>
-                                    Gói Private 3 tháng
-                                </Text>
-                            </View>
-                            <TouchableOpacity style={styles.presentBadge}>
-                                <Text style={styles.presentText}>
-                                    ✓ Có mặt
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                     <View style={styles.card}>
-                        <View style={styles.timeRow}>
-                            <View style={styles.timeLeft}>
-                                <Ionicons name="time-outline" size={16} color="#4BA3F5" ></Ionicons>
-                                <Text style={styles.timeText}>
-                                    10:00 - 11:00 AM
-                                </Text>
-                            </View>
-                            <TouchableOpacity style={styles.waitBadge}>
-                                <Text style={styles.waitText}>
-                                   Chờ điểm danh
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.userRow} >
-                            <View style={[styles.avatar, { backgroundColor: "#FF6DB0" }]}>
-                                <Text style={styles.avatarText}>
-                                    B
-                                </Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.name}>
-                                    Trần Thị Bích
-                                </Text>
-                                <Text style={styles.note}>
-                                    Gói Nhóm 10 buổi
-                                </Text>
-                            </View>
-                            <TouchableOpacity style={styles.confirmBtn}>
-                                <Text style={styles.confirmText}>
-                                    Xác nhận có mặt
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                     <View style={styles.card}>
-                        <View style={styles.timeRow}>
-                            <View style={styles.timeLeft}>
-                                <Ionicons name="time-outline" size={16} color="#4BA3F5" ></Ionicons>
-                                <Text style={styles.timeText}>
-                                    15:00 - 16:00 PM
-                                </Text>
-                            </View>
-                            <TouchableOpacity style={styles.waitBadge}>
-                                <Text style={styles.waitText}>
-                                    Chờ điểm danh
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.userRow} >
-                            <View style={[styles.avatar, { backgroundColor: "#2ECC71" }]}>
-                                <Text style={styles.avatarText}>
-                                   C
-                                </Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.name}>
-                                    Lê Hoàng Cường
-                                </Text>
-                                <Text style={styles.note}>
-                                    Gói VIP 6 tháng
-                                </Text>
-                            </View>
-                            <TouchableOpacity style={styles.confirmBtn}>
-                                <Text style={styles.confirmText}>
-                                    Xác nhận có mặt
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                        );
+                    })}
                 </View>
             </ScrollView>
         </SafeAreaView>

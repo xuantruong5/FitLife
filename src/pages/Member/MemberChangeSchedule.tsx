@@ -3,141 +3,109 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, Touchable, TouchableOpa
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import apiFitlife from "../general/api";
+import apiFitlife from "../../general/api";
 
-const ChangeSchedule = ({ navigation, route }: any) => {
-    const { schedule } = route.params;
-    const [trainer, setTrainer] = useState<any>(null); // lay ten tu token 
-
-    const [selectedDate, setSelectedDate] = useState(new Date());
+const MemberChangeSchedule = ({ navigation, route }: any) => {
+    const { id } = route.params;
+    console.log("ID nhận được:", id);
+    const [schedule, setSchedule] = useState<any>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState("");
-    const [selectedEndTime, setSelectedEndTime] = useState("");
+    const [availableDates, setAvailableDates] = useState<any[]>([]);
+    const [availableTimes, setAvailableTimes] = useState<any[]>([]);
     const [reason, setReason] = useState("");
-    const formatDate = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    };
 
 
 
-
-
-    const changeWeek = (direction: number) => {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(selectedDate.getDate() + direction * 7);
-        setSelectedDate(newDate);
-    };
     const weekDays = useMemo(() => {
-        // Thứ trong tuần hiện tại (0 = CN, 1 = T2, ...)
-        const currentDay = selectedDate.getDay();
-        // Tìm ngày thứ 2 của tuần hiện tại
-        const monday = new Date(selectedDate);
-        if (currentDay === 0) {
-            // Nếu là Chủ Nhật thì lùi 6 ngày
-            monday.setDate(monday.getDate() - 6);
-        } else {
-            // Các ngày còn lại lùi về thứ 2
-            monday.setDate(monday.getDate() - currentDay + 1);
-        }
-        const result = [];
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(monday);
-            date.setDate(monday.getDate() + i);
-            result.push({
+        return (availableDates ?? []).map((item: any) => {
+            const date = new Date(item.date);
+
+            return {
                 fullDate: date,
-                dayName: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][i],
-            });
-        }
-        return result;
-    }, [selectedDate]);
-
-    const times = [
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-    ];
-
-
-    const handleChangeSchedule = async () => {
-
-        if (!selectedTime) {
-            Alert.alert("Vui lòng chọn giờ mới");
-            return;
-        }
-
-        if (!reason) {
-            Alert.alert("Vui lòng nhập lý do");
-            return;
-        }
-
-
-        try {
-
-            const payload = {
-                old_schedule_id: schedule.id,
-
-                date: formatDate(selectedDate),
-
-                start_time: selectedTime + ":00",
-
-                end_time:
-                    `${String(parseInt(selectedTime) + 1).padStart(2, "0")}:00:00`,
-
-                reason: reason
+                dayName: [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7",
+                ][date.getDay()],
+                date: item.date,
             };
+        });
+    }, [availableDates]);
 
 
-            console.log("DATA SEND:", payload);
-
-
-            const res = await apiFitlife.post(
-                "/trainer/change-schedule",
-                payload
-            );
-
-
-            if (res.data.success) {
-
-                Alert.alert("Gửi yêu cầu đổi lịch thành công");
-
-                navigation.goBack();
-
+    const getChangeSchedule = async () => {
+        try {
+            const res = await apiFitlife.get(`/member/get-schedule/${id}`);
+            console.log("Lịch hiện tại:", res.data);
+            if (res.data.status) {
+                const data = res.data.data;
+                setSchedule(data);
+                const schedules = data?.trainer_schedules ?? [];
+                setAvailableDates(schedules);
+                if (schedules.length > 0) {
+                    const firstDate = new Date(schedules[0].date);
+                    setSelectedDate(firstDate);
+                    setAvailableTimes(
+                        schedules.filter(
+                            (item: any) => item.date === schedules[0].date
+                        )
+                    );
+                } else {
+                    setSelectedDate(null);
+                    setAvailableTimes([]);
+                }
             }
-
-
         } catch (error: any) {
-
-            console.log(
-                error.response?.data || error
-            );
-
-            Alert.alert(
-                error.response?.data?.message ||
-                "Đổi lịch thất bại"
-            );
-
+            console.log("ERROR:", error);
+            console.log("STATUS:", error?.response?.status);
+            console.log(error?.response?.data);
         }
+    };
+    const handleChangeSchedule = async () => {
+        try {
+            const time = availableTimes.find(
+                (item: any) => item.start_time === selectedTime
+            );
 
+            if (!time) {
+                Alert.alert("Thông báo", "Vui lòng chọn khung giờ");
+                return;
+            }
+            const body = {
+                id_schedule: schedule.trainer_schedule_id,
+                date: selectedDate?.toISOString().split("T")[0],
+                start_time: selectedTime.substring(0, 5),
+                end_time: time.end_time.substring(0, 5),
+                reason: reason,
+            };
+            console.log(body);
+            const res = await apiFitlife.post("/member/change-schedule", body);
+            Alert.alert("Thông báo", res.data.message);
+            if (res.data.status) {
+                navigation.goBack();
+            }
+        } catch (error: any) {
+            console.log("ERROR:", error);
+            console.log("STATUS:", error.response?.status);
+            console.log("DATA:", error.response?.data);
+            console.log("MESSAGE:", error.message);
+            if (error.response?.status === 422) {
+                const errors = error.response.data.errors;
+                Object.values(errors).forEach((item: any) => {
+                    Alert.alert("Lỗi", item[0]);
+                });
+            } else {
+                console.log(error.response?.data);
+            }
+        }
     };
     useEffect(() => {
-        const loadTrainer = async () => {
-            const data = await AsyncStorage.getItem("user");
-            if (data) {
-                const user = JSON.parse(data);
-                setTrainer(user);
-            }
-        };
-        loadTrainer();
+        getChangeSchedule();
     }, []);
 
 
@@ -145,7 +113,6 @@ const ChangeSchedule = ({ navigation, route }: any) => {
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
-
                     <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
                         <Ionicons name="arrow-back" size={22} color="#1E293B" />
                     </TouchableOpacity>
@@ -160,26 +127,25 @@ const ChangeSchedule = ({ navigation, route }: any) => {
                 <View style={styles.currentCard}>
                     <View style={styles.rowItem}>
                         <Ionicons name="person-outline" size={18} color="#60A5FA" />
-                        <Text style={styles.infoText}>{trainer?.name}</Text>
+                        <Text style={styles.infoText}> {schedule?.trainer_name || "Đang tải..."} </Text>
 
                         <View style={styles.privateTag}>
-                            <Text style={styles.privateText}>{schedule.title}</Text>
+                            <Text style={styles.privateText}>Private 1-1</Text>
                         </View>
                     </View>
 
                     <View style={styles.rowItem}>
                         <Ionicons name="calendar-outline" size={18} color="#CBD5E1" />
-                        <Text style={styles.infoText}> {new Date(schedule.date).toLocaleDateString("vi-VN")}</Text>
+                        <Text style={styles.infoText}> {schedule?.date || "---"}</Text>
                     </View>
 
                     <View style={styles.rowItem}>
                         <Ionicons name="time-outline" size={18} color="#CBD5E1" />
                         <Text style={styles.infoText}>
-                            {schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)}
+                            {schedule?.start_time ? schedule.start_time.substring(0, 5) : "--:--"} - {schedule?.end_time ? schedule.end_time.substring(0, 5) : "--:--"}
                         </Text>
                     </View>
                 </View>
-
 
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>
@@ -187,66 +153,79 @@ const ChangeSchedule = ({ navigation, route }: any) => {
                     </Text>
 
                     <View style={styles.monthContainer}>
-                        <TouchableOpacity onPress={() => changeWeek(-1)}>
-                            <Ionicons name="chevron-back" size={15} color="#F5A623" />
-                        </TouchableOpacity>
-
                         <View style={styles.monthBox}>
                             <Text style={styles.monthText}>
-                                Tháng{" "} {selectedDate.getMonth() + 1} {" "} năm{" "} {selectedDate.getFullYear()}
+                                {selectedDate
+                                    ? `Tháng ${selectedDate.getMonth() + 1} năm ${selectedDate.getFullYear()}`
+                                    : "Đang chọn..."
+                                }
                             </Text>
                         </View>
-                        <TouchableOpacity onPress={() => changeWeek(1)}>
-                            <Ionicons name="chevron-forward" size={15} color="#F5A623" />
-                        </TouchableOpacity>
                     </View>
-
                 </View>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {weekDays.map(
-                        (
-                            item, index
-                        ) => {
-                            const active = item.fullDate.toDateString() === selectedDate.toDateString();
-                            return (
-                                <TouchableOpacity key={index} style={[styles.dayCard, active && styles.activeDay]} onPress={() => setSelectedDate(item.fullDate)}>
-                                    <Text style={[styles.dayLabel, active && { color: "#fff" }]}>
-                                        {item.dayName}
-                                    </Text>
-                                    <Text style={[styles.dayNumber, active && { color: "#fff", },]}>
-                                        {item.fullDate.getDate()}
-                                    </Text>
+                    {weekDays.map((item, index) => {
+                        // FIX LỖI: Chỉ so sánh toDateString() khi selectedDate không null
+                        const active = selectedDate ? item.fullDate.toDateString() === selectedDate.toDateString() : false;
 
-                                    <Text style={[styles.monthSmall, active && { color: "#fff", },]}>
-                                        /
-                                        {item.fullDate.getMonth() + 1}
-                                    </Text>
-                                </TouchableOpacity>
-                            )
-                        }
-                    )}
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                style={[styles.dayCard, active && styles.activeDay]}
+                                onPress={() => {
+                                    setSelectedDate(item.fullDate);
+                                    const times = availableDates.filter((x: any) => x.date === item.date);
+                                    setAvailableTimes(times);
+                                    setSelectedTime("");
+                                }}
+                            >
+                                <Text style={[styles.dayLabel, active && { color: "#fff" }]}>
+                                    {item.dayName}
+                                </Text>
+                                <Text style={[styles.dayNumber, active && { color: "#fff" }]}>
+                                    {item.fullDate.getDate()}
+                                </Text>
+                                <Text style={[styles.monthSmall, active && { color: "#fff" }]}>
+                                    /{item.fullDate.getMonth() + 1}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </ScrollView>
 
                 <Text style={[styles.sectionTitle, { marginTop: 25 }]}>
                     2. Chọn khung giờ mới
                 </Text>
                 <View style={styles.timeContainer}>
-                    {times.map((time) => (
-                        <TouchableOpacity key={time} style={[styles.timeBtn, selectedTime === time && styles.activeTime]} onPress={() =>  {setSelectedTime(time);}}>
-                            <Text style={[styles.timeText, selectedTime === time && { color: "#fff" }]}>
-                                {time}
+                    {/* Thêm Optional Chaining đề phòng availableTimes chưa kịp có dữ liệu */}
+                    {availableTimes?.map((item: any) => (
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.timeBtn, selectedTime === item.start_time && styles.activeTime]}
+                            onPress={() => setSelectedTime(item.start_time)}
+                        >
+                            <Text style={[styles.timeText, selectedTime === item.start_time && { color: "#fff" }]}>
+                                {item.start_time?.substring(0, 5)}
+                                {" - "}
+                                {item.end_time?.substring(0, 5)}
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                <Text style={[styles.sectionTitle, { marginTop: 15, }]}>
+                <Text style={[styles.sectionTitle, { marginTop: 15 }]}>
                     3. Lý do đổi lịch
                 </Text>
-                <TextInput style={styles.input} multiline placeholder="Nhập lý do đổi lịch..." value={reason} onChangeText={setReason} />
+                <TextInput
+                    style={styles.input}
+                    multiline
+                    placeholder="Nhập lý do đổi lịch..."
+                    value={reason}
+                    onChangeText={setReason}
+                />
 
-                <TouchableOpacity style={styles.submitBtn}  onPress={handleChangeSchedule}>
+                <TouchableOpacity style={styles.submitBtn} onPress={handleChangeSchedule}>
                     <Text style={styles.submitText}>
                         Gửi yêu cầu đổi lịch
                     </Text>
@@ -255,11 +234,9 @@ const ChangeSchedule = ({ navigation, route }: any) => {
                     Lưu ý: Lịch sẽ chỉ chính thức thay đổi sau khi học viên nhấn{" "}
                     <Text style={styles.noteHighlight}>Đồng ý</Text>.
                 </Text>
-
-
             </ScrollView>
         </SafeAreaView>
-    )
+    );
 }
 const styles = StyleSheet.create({
     container: {
@@ -466,4 +443,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default ChangeSchedule;
+export default MemberChangeSchedule;

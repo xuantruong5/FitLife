@@ -40,6 +40,13 @@ import BookingSuccess from "./src/pages/Member/BookingSuccess";
 import MemberSchedule from "./src/pages/Member/MemberSchedule";
 import ScheduleDetail from "./src/pages/Member/ScheduleDetail";
 import MemberTrainerNotes from "./src/pages/Member/MemberTrainerNotes";
+import CurrentTrainer from "./src/pages/Member/CurrentTrainer";
+import MemberChangeSchedule from "./src/pages/Member/MemberChangeSchedule";
+import TrainerEditProfile from "./src/pages/TrainerEditProfile";
+import TrainerChangePassword from "./src/pages/TrainerChangePassword";
+import TrainerTeachingHistory from "./src/pages/TrainerTeachingHistory";
+import MemberAttendanceHistory from "./src/pages/MemberAttendanceHistory";
+import StoreScheduleMember from "./src/pages/StoreScheduleMember";
 
 
 
@@ -93,7 +100,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomePage} />
-      {/* <Tab.Screen name="login" component={Login} /> */}
+      {/* <Tab.Screen name="login" component={StoreScheduleMember} /> */}
       {/* <Tab.Screen name="ScanQR" component={ScanQR} />
       <Tab.Screen name="ChatBot" component={ChatBot} /> */}
       <Tab.Screen name="Profile" component={Profile} />
@@ -131,7 +138,7 @@ function MemberTabs() {
       }
     })}>
       <Tab.Screen name= "Home" component={MemberHome} />
-      <Tab.Screen name="Trainer" component={MemberTrainer} />
+      <Tab.Screen name="Trainer" component={CurrentTrainer} />
       <Tab.Screen name="Calendar" component={MemberSchedule} />
       <Tab.Screen name="Profile" component={MemberProfile} />
     </Tab.Navigator>
@@ -177,6 +184,7 @@ const App = () => {
         <Stack.Screen name="Calendar" component={Calendar} />
         <Stack.Screen name="MembersPage" component={MembersPage} />
         <Stack.Screen name="Progress" component={Progress} />
+        <Stack.Screen name="MemberAttendanceHistory" component={MemberAttendanceHistory} />
         <Stack.Screen name="MemberDetails" component={MemberDetails} />
         <Stack.Screen name="TrainerIncome" component={TrainerIncome} />
         <Stack.Screen name="ChangeSchedule" component={ChangeSchedule} />
@@ -199,6 +207,12 @@ const App = () => {
         <Stack.Screen name="BookingSuccess" component={BookingSuccess}/>
         <Stack.Screen name="ScheduleDetail" component={ScheduleDetail}/>
         <Stack.Screen name="MemberTrainerNotes" component={MemberTrainerNotes}/>
+        <Stack.Screen name="MemberTrainer" component={MemberTrainer}/>
+        <Stack.Screen name="MemberChangeSchedule" component={MemberChangeSchedule}/> 
+        <Stack.Screen name="TrainerEditProfile" component={TrainerEditProfile}/>
+        <Stack.Screen name="TrainerChangePassword" component={TrainerChangePassword}/>
+        <Stack.Screen name="TrainerTeachingHistory" component={TrainerTeachingHistory}/>
+        <Stack.Screen name="StoreScheduleMember" component={StoreScheduleMember}/>
         <Stack.Screen name="Test" component={Test} />
         
 
