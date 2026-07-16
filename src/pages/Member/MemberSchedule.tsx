@@ -24,7 +24,11 @@ const MemberSchedule = ({ navigation }: any) => {
             if (res.data.status) {
                 setScheduleData(res.data.data);
             }
-        } catch (error) {
+        } catch (error: any) {
+             console.log("Status:", error?.response?.status);
+        console.log("Data:", error?.response?.data);
+        console.log("Headers:", error?.config?.headers);
+        console.log("Full Error:", error);
             console.log(error);
         }
     };
